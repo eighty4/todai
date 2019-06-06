@@ -1,8 +1,7 @@
 import React from 'react'
-import {ScrollView, Dimensions} from 'react-native'
+import {ScrollView} from 'react-native'
 import {TodayView, TomorrowView} from './DayView.js'
-
-const width = Dimensions.get("window").width;
+import {getWindowWidth} from "./Util";
 
 export default class TodaiApp extends React.Component {
 
@@ -16,8 +15,7 @@ export default class TodaiApp extends React.Component {
     }
 
     onPan(destination) {
-        console.log('onPan', destination)
-        const x = destination === 'today' ? 0 : width + 1
+        const x = destination === 'today' ? 0 : getWindowWidth() + 1
         this.refs._scrollView.scrollTo({x, animated: true})
     }
 }

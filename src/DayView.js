@@ -1,31 +1,30 @@
 import React from 'react'
 import PropTypes from 'prop-types';
-import {View, Text, Dimensions, StyleSheet, TouchableOpacity} from 'react-native'
-
-const {width, height} = Dimensions.get("window");
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native'
+import Todos from './Todos'
+import {getWindowDimensions} from "./Util";
 
 const dayData = {
     today: {
         label: 'Today',
         button: '>',
+        todos: ['Yoga', 'Fix tub', 'Clean bathroom']
     },
     tomorrow: {
         label: 'Tomorrow',
         button: '<',
-
-    }
+        todos: ['Run'],
+    },
 }
 
 const styles = StyleSheet.create({
     container: {
-        width,
-        height,
         display: 'flex',
         flexDirection: 'row'
     },
     spacer: {
-        width: 20
-    }
+        width: 20,
+    },
 })
 
 const thisDayStyles = StyleSheet.create({
@@ -42,7 +41,7 @@ const thisDayStyles = StyleSheet.create({
         paddingTop: 5,
         borderBottomColor: 'black',
         borderBottomWidth: 1,
-    }
+    },
 })
 
 const otherDayStyles = StyleSheet.create({
@@ -70,11 +69,12 @@ const otherDayStyles = StyleSheet.create({
 
 const DayView = props => {
 
-    const spacer = <View style={styles.spacer}/>
+    const spacer = <View key="spacer" style={styles.spacer}/>
 
-    const thisDay = <View style={thisDayStyles.container}>
+    const thisDay = <View key="this-day" style={thisDayStyles.container}>
         <Text style={thisDayStyles.label}>{dayData[props.day].label}</Text>
         <View style={thisDayStyles.divider}/>
+        <Todos todos={dayData[props.day].todos}/>
     </View>
 
     const otherDayStylesToUse = {
@@ -82,29 +82,18 @@ const DayView = props => {
         alignItems: props.day === 'today' ? 'flex-start' : 'flex-end'
     }
 
-    const otherDay = <View style={otherDayStylesToUse}>
+    const otherDay = <View key="other-day" style={otherDayStylesToUse}>
         <TouchableOpacity style={otherDayStyles.button} onPress={props.onPanButtonPress}>
             <Text style={otherDayStyles.buttonText}>{dayData[props.day].button}</Text>
         </TouchableOpacity>
     </View>
 
-    if (props.day === 'today') {
-        return (
-            <View style={styles.container}>
-                {spacer}
-                {thisDay}
-                {otherDay}
-            </View>
-        )
-    } else {
-        return (
-            <View style={styles.container}>
-                {otherDay}
-                {thisDay}
-                {spacer}
-            </View>
-        )
-    }
+    const {height, width} = getWindowDimensions()
+    return (
+        <View style={{...styles.container, height, width}}>
+            {props.day === 'today' ? [spacer, thisDay, otherDay] : [otherDay, thisDay, spacer]}
+        </View>
+    )
 }
 
 DayView.propTypes = {
