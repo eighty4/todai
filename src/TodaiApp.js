@@ -1,21 +1,24 @@
 import React from 'react'
-import {ScrollView} from 'react-native'
-import {TodayView, TomorrowView} from './DayView.js'
-import {getWindowWidth} from "./Util";
+import {Provider} from 'react-redux'
+import {store} from './state'
+import DayPan from './DayPan'
+import TodosBootstrapContainer from './TodosBootstrapContainer'
+import DayViewContainer from './day/DayViewContainer'
 
-export default class TodaiApp extends React.Component {
+export default class TodaiApp extends React.PureComponent {
 
     render() {
+        const days = {
+            today: <DayViewContainer day="today"/>,
+            tomorrow: <DayViewContainer day="tomorrow"/>,
+        }
         return (
-            <ScrollView horizontal pagingEnabled ref="_scrollView">
-                <TodayView onPanButtonPress={this.onPan.bind(this, 'tomorrow')}/>
-                <TomorrowView onPanButtonPress={this.onPan.bind(this, 'today')}/>
-            </ScrollView>
+            <Provider store={store}>
+                <TodosBootstrapContainer>
+                    <DayPan {...days}/>
+                </TodosBootstrapContainer>
+            </Provider>
         )
     }
 
-    onPan(destination) {
-        const x = destination === 'today' ? 0 : getWindowWidth() + 1
-        this.refs._scrollView.scrollTo({x, animated: true})
-    }
 }

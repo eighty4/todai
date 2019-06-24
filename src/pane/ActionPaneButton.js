@@ -1,0 +1,38 @@
+import React from 'react'
+import PropTypes from 'prop-types'
+import {TouchableOpacity, StyleSheet, Text, Dimensions} from 'react-native'
+
+const styles = StyleSheet.create({
+    container: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderColor: 'black',
+        borderWidth: 1,
+        borderRadius: 3,
+    },
+})
+
+class ActionPaneButton extends React.PureComponent {
+
+    onButtonPress = () => this.props.onPress()
+
+    render() {
+        const {height, width} = Dimensions.get('window')
+        const containerStyles = {
+            ...styles.container,
+            height: height * .1,
+            width: width * .1,
+        }
+        return (
+            <TouchableOpacity style={containerStyles} onPress={this.onButtonPress}>
+                <Text>{'>'}</Text>
+            </TouchableOpacity>
+        )
+    }
+}
+
+ActionPaneButton.propTypes = {
+    onPress: PropTypes.func.isRequired,
+}
+
+export default ActionPaneButton
