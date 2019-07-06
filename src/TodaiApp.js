@@ -1,6 +1,6 @@
 import React from 'react'
 import {Provider} from 'react-redux'
-import {store} from './state'
+import store from './state/store'
 import DayPan from './DayPan'
 import TodosBootstrapContainer from './TodosBootstrapContainer'
 import DayViewContainer from './day/DayViewContainer'

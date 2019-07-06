@@ -30,7 +30,7 @@ class DayView extends React.PureComponent {
             <View style={{...styles.container}}>
                 <Text style={styles.label}>{this.props.day === 'today' ? 'Today' : 'Tomorrow'}</Text>
                 <View style={styles.divider}/>
-                <Todos todos={this.props.todos}/>
+                <Todos day={this.props.day} todos={this.props.todos}/>
             </View>
         )
     }

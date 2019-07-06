@@ -1,28 +1,87 @@
-import {handle} from 'redux-pack'
+import Storage from './Storage'
+import {filter, mergeMap} from 'rxjs/operators'
 
 export const LOAD_TODOS = 'LOAD_TODOS'
+export const LOAD_TODOS_SUCCESS = 'LOAD_TODOS_SUCCESS'
+export const LOAD_TODOS_FAILURE = 'LOAD_TODOS_FAILURE'
+export const ADD_TODO = 'ADD_TODO'
+export const ADD_TODO_SUCCESS = 'ADD_TODO_SUCCESS'
+export const ADD_TODO_FAILURE = 'ADD_TODO_FAILURE'
 
 export const loadTodos = () => ({
     type: LOAD_TODOS,
-    promise: Promise.resolve({
-        today: ['Build deck', 'Laundry'],
-        tomorrow: ['Yoga', 'Clean car', 'Uber'],
-    })
 })
 
-const initialState = {today: [], tomorrow: [], loading: false, error: false}
+export const addTodo = (day, todo) => ({
+    type: ADD_TODO,
+    day,
+    todo,
+})
 
-export const reducers = (state = initialState, action) => {
-    const {type, payload} = action
-    switch (type) {
+const initialState = {today: [], tomorrow: [], loading: false, error: false, adding: false}
+
+export const reducers = (prevState = initialState, action) => {
+    switch (action.type) {
         case LOAD_TODOS:
-            return handle(state, action, {
-                start: prevState => ({...prevState, loading: true, error: false}),
-                finish: prevState => ({...prevState, loading: false}),
-                failure: prevState => ({...prevState, error: true}),
-                success: prevState => ({...prevState, today: payload.today, tomorrow: payload.tomorrow}),
-            })
+            return {
+                ...prevState,
+                loading: true,
+                error: false,
+            }
+        case LOAD_TODOS_SUCCESS:
+            const {todos} = action
+            return {
+                ...prevState,
+                loading: false,
+                ...todos,
+            }
+        case LOAD_TODOS_FAILURE:
+            const {error} = action
+            return {
+                ...prevState,
+                loading: false,
+                error,
+            }
         default:
-            return state
+            return prevState
     }
 }
+
+export const loadTodosEpic = action$ => action$.pipe(
+    filter(action => action.type === LOAD_TODOS),
+    mergeMap(async () => {
+        try {
+            const todos = await Storage.loadTodos()
+            return {
+                type: LOAD_TODOS_SUCCESS,
+                todos,
+            }
+        } catch (error) {
+            return {
+                type: LOAD_TODOS_FAILURE,
+                error,
+            }
+        }
+    }),
+)
+
+export const addTodoEpic = action$ => action$.pipe(
+    filter(action => action.type === ADD_TODO),
+    mergeMap(async action => {
+        const {day, todo} = action
+        try {
+            await Storage.addTodo(day, todo)
+            return [{type: ADD_TODO_SUCCESS}, loadTodos()]
+        } catch (error) {
+            return {
+                type: ADD_TODO_FAILURE,
+                error,
+            }
+        }
+    }),
+)
+
+export const epics = [
+    loadTodosEpic,
+    addTodoEpic,
+]

@@ -31,13 +31,14 @@ class Todos extends React.PureComponent {
         return (
             <ScrollView style={styles.container} scrollEnabled={scrollEnabled}>
                 {this.props.todos.map(Todos.renderTodo)}
-                <TodoInputContainer/>
+                <TodoInputContainer day={this.props.day}/>
             </ScrollView>
         )
     }
 }
 
 Todos.propTypes = {
+    day: PropTypes.string.isRequired,
     todos: PropTypes.array.isRequired,
 }
 
