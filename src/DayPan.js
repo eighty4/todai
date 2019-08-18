@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import {Animated, View, PanResponder, StyleSheet, Dimensions} from 'react-native'
+import {Animated, View, PanResponder, StyleSheet, Dimensions, Keyboard} from 'react-native'
 import ActionPane from './pane/ActionPane'
 
 const styles = StyleSheet.create({
@@ -70,6 +70,7 @@ class DayPan extends React.PureComponent {
     }
 
     animateDayTransition(day) {
+        Keyboard.dismiss()
         const toValue = day === DayPan.TODAY ? 0 : Dimensions.get('window').width * -.8
         const stateChangeCallback = day === this.state.day ? undefined : () => {
             this.setState({day: Math.abs(this.state.day - 1)})

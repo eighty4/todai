@@ -1,12 +1,13 @@
 import React from 'react'
 import PropTypes from 'prop-types';
-import {View, Text, StyleSheet} from 'react-native'
+import {View, Text, StyleSheet, TouchableWithoutFeedback, Keyboard} from 'react-native'
 import Todos from './Todos'
 
 const styles = StyleSheet.create({
     container: {
         paddingTop: 70,
         width: '100%',
+        height: '100%',
     },
     spacer: {
         width: 20,
@@ -27,11 +28,13 @@ class DayView extends React.PureComponent {
 
     render() {
         return (
-            <View style={{...styles.container}}>
-                <Text style={styles.label}>{this.props.day === 'today' ? 'Today' : 'Tomorrow'}</Text>
-                <View style={styles.divider}/>
-                <Todos day={this.props.day} todos={this.props.todos}/>
-            </View>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={{...styles.container}}>
+                    <Text style={styles.label}>{this.props.day === 'today' ? 'Today' : 'Tomorrow'}</Text>
+                    <View style={styles.divider}/>
+                    <Todos day={this.props.day} todos={this.props.todos}/>
+                </View>
+            </TouchableWithoutFeedback>
         )
     }
 }

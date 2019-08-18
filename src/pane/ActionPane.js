@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import {StyleSheet, TouchableOpacity, Dimensions} from 'react-native'
+import {StyleSheet, TouchableOpacity, Dimensions, Keyboard} from 'react-native'
 import ActionPaneButton from "./ActionPaneButton";
 
 const styles = StyleSheet.create({
@@ -12,7 +12,10 @@ const styles = StyleSheet.create({
 
 class ActionPane extends React.PureComponent {
 
-    onPanePress = () => this.props.onPan()
+    onPanePress = () => {
+        Keyboard.dismiss()
+        this.props.onPan()
+    }
 
     render() {
         const {height} = Dimensions.get('window')
