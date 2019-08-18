@@ -11,13 +11,13 @@
     "react": "16.8.3",
     "react-native": "https://github.com/expo/react-native/archive/sdk-33.0.0.tar.gz",
     "react-redux": "6.0.1",
-    "redux": "^4.0.1",
+    "redux": "^4.0.4",
     "redux-logger": "^3.0.6",
     "redux-observable": "^1.1.0",
     "rxjs": "^6.5.2"
   },
   "devDependencies": {
-    "babel-preset-expo": "^5.0.0",
+    "babel-preset-expo": "^5.1.1",
     "jest-expo": "^33.0.2",
     "prop-types": "^15.7.2"
   },
