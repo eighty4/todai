@@ -91,13 +91,14 @@ class DayPan extends React.PureComponent {
                 translateX: this.animatedX,
             }]
         }
+        const day = this.state.day === DayPan.TODAY ? 'today' : 'tomorrow';
         return (
             <Animated.View style={animatedViewStyles} {...this.panResponder.panHandlers}>
                 <View style={{height, width: width * .8}}>
                     {this.props.today}
                 </View>
                 <View style={{height, width: width * .2}}>
-                    <ActionPane onPan={this.onManualPan}/>
+                    <ActionPane onPan={this.onManualPan} day={day}/>
                 </View>
                 <View style={{height, width: width * .8}}>
                     {this.props.tomorrow}

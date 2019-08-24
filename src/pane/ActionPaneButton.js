@@ -14,6 +14,11 @@ const styles = StyleSheet.create({
 
 class ActionPaneButton extends React.PureComponent {
 
+    static BUTTON_TEXT = {
+        today: '>',
+        tomorrow: '<',
+    }
+
     onButtonPress = () => this.props.onPress()
 
     render() {
@@ -25,7 +30,7 @@ class ActionPaneButton extends React.PureComponent {
         }
         return (
             <TouchableOpacity style={containerStyles} onPress={this.onButtonPress}>
-                <Text>{'>'}</Text>
+                <Text>{ActionPaneButton.BUTTON_TEXT[this.props.day]}</Text>
             </TouchableOpacity>
         )
     }
@@ -33,6 +38,7 @@ class ActionPaneButton extends React.PureComponent {
 
 ActionPaneButton.propTypes = {
     onPress: PropTypes.func.isRequired,
+    day: PropTypes.oneOf(['today', 'tomorrow']).isRequired,
 }
 
 export default ActionPaneButton
