@@ -94,10 +94,7 @@ class Todo extends React.Component {
     }
 
     render() {
-        const containerStyles = {
-            ...styles.container,
-            backgroundColor: this.state.selected ? 'skyblue' : 'rebeccapurple',
-        }
+        const containerStyles = [styles.container, {backgroundColor: this.state.selected ? 'skyblue' : 'rebeccapurple'}]
         return (
             <Animated.View style={containerStyles} {...this.panResponder.panHandlers} onLayout={this.onLayout}>
                 <Text style={styles.text}>{this.props.todo}</Text>

@@ -5,7 +5,7 @@ import {StyleSheet, TextInput, View} from 'react-native'
 const styles = StyleSheet.create({
     container: {
         borderBottomColor: 'darkgrey',
-        borderBottomWidth: 1,
+        borderBottomWidth: StyleSheet.hairlineWidth,
     },
     input: {
         fontSize: 20,

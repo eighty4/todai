@@ -7,8 +7,7 @@ import TodoInputContainer from '../input/TodoInputContainer'
 const styles = StyleSheet.create({
     container: {
         paddingTop: 15,
-        paddingLeft: 20,
-        paddingRight: 20,
+        paddingVertical: 20,
     },
 })
 
@@ -27,7 +26,7 @@ class TodoList extends React.PureComponent {
     }
 
     render() {
-        const scrollEnabled = false // todo check height of content to toggle on/off\
+        const scrollEnabled = false // todo check height of content to toggle on/off
         const containerStyles = {
             ...styles.container,
             [this.props.day === 'today' ? 'paddingLeft' : 'paddingRight']: 20,

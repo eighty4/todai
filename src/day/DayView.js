@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
     divider: {
         paddingTop: 5,
         borderBottomColor: 'black',
-        borderBottomWidth: 1,
+        borderBottomWidth: StyleSheet.hairlineWidth,
     },
 })
 
