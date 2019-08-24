@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import {StyleSheet, TouchableOpacity, Dimensions, Keyboard} from 'react-native'
-import ActionPaneButton from "./ActionPaneButton";
+import ActionPaneButton from './ActionPaneButton'
 
 const styles = StyleSheet.create({
     container: {

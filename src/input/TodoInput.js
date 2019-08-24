@@ -6,7 +6,6 @@ const styles = StyleSheet.create({
     container: {
         borderBottomColor: 'darkgrey',
         borderBottomWidth: 1,
-        marginRight: 20,
     },
     input: {
         fontSize: 20,
@@ -33,7 +32,10 @@ class TodoInput extends React.Component {
     }
 
     onSubmitEditing = (e) => {
-        this.props.addTodo(this.props.day, e.nativeEvent.text)
+        if (this.state.text.length > 0) {
+            this.props.addTodo(this.props.day, e.nativeEvent.text)
+            this.setState({text: ''})
+        }
     }
 
     render() {
@@ -45,6 +47,7 @@ class TodoInput extends React.Component {
                            onChangeText={this.onChangeText}
                            onFocus={this.onFocus}
                            onSubmitEditing={this.onSubmitEditing}
+                           value={this.state.text}
                 />
             </View>
         )

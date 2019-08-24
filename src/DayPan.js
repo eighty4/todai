@@ -15,9 +15,9 @@ class DayPan extends React.PureComponent {
 
     static TOMORROW = 1
 
-    static SWIPE_FROM_MARGIN = 0.6
+    static SWIPE_FROM_MARGIN = 0.8
 
-    static SWIPE_DISTANCE_THRESHOLD = 0.25
+    static SWIPE_DISTANCE_THRESHOLD = 0.2
 
     constructor(props, context) {
         super(props, context)
@@ -46,10 +46,10 @@ class DayPan extends React.PureComponent {
             switch (this.state.day) {
                 case DayPan.TODAY:
                     this.animatedX.setValue(g.moveX - g.x0)
-                    break;
+                    break
                 case DayPan.TOMORROW:
                     this.animatedX.setValue(g.moveX - g.x0 - width)
-                    break;
+                    break
             }
         },
         onPanResponderRelease: (e, g) => {
@@ -59,9 +59,6 @@ class DayPan extends React.PureComponent {
             } else {
                 this.animateDayTransition(this.state.day)
             }
-        },
-        onPanResponderTerminate: () => {
-            console.log('terminate')
         },
     })
 

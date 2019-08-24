@@ -1,7 +1,7 @@
 import React from 'react'
-import PropTypes from 'prop-types';
+import PropTypes from 'prop-types'
 import {View, Text, StyleSheet, TouchableWithoutFeedback, Keyboard} from 'react-native'
-import Todos from './Todos'
+import TodoList from '../todos/TodoListContainer'
 
 const styles = StyleSheet.create({
     container: {
@@ -29,10 +29,10 @@ class DayView extends React.PureComponent {
     render() {
         return (
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View style={{...styles.container}}>
+                <View style={styles.container}>
                     <Text style={styles.label}>{this.props.day === 'today' ? 'Today' : 'Tomorrow'}</Text>
                     <View style={styles.divider}/>
-                    <Todos day={this.props.day} todos={this.props.todos}/>
+                    <TodoList day={this.props.day} todos={this.props.todos}/>
                 </View>
             </TouchableWithoutFeedback>
         )
@@ -40,7 +40,7 @@ class DayView extends React.PureComponent {
 }
 
 DayView.propTypes = {
-    day: PropTypes.oneOf(['today', 'tomorrow']),
+    day: PropTypes.oneOf(['today', 'tomorrow']).isRequired,
     todos: PropTypes.array.isRequired,
 }
 

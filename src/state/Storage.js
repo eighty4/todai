@@ -9,12 +9,9 @@ class Storage {
     }
 
     static loadTodos() {
-        const today = new Date().toISOString().substring(0, 10)
-        const tomorrow = today.substring(0, 8) + (parseInt(today.substring(8, 10), 10) + 1)
-
         return Promise.all([
-            Storage.retrieveRecord('todos:' + today, []),
-            Storage.retrieveRecord('todos:' + tomorrow, []),
+            Storage.retrieveRecord('todos:today', []),
+            Storage.retrieveRecord('todos:tomorrow', []),
         ]).then(results => {
             return {
                 today: results[0],
@@ -24,12 +21,21 @@ class Storage {
     }
 
     static addTodo(day, todo) {
-        const today = new Date().toISOString().substring(0, 10)
-        const dateKey = day === 'today' ? today : today.substring(0, 8) + (parseInt(today.substring(8, 10), 10) + 1)
-        return Storage.retrieveRecord('todos:' + dateKey, [])
+        return Storage.retrieveRecord(`todos:${day}`, [])
             .then(todos => {
                 todos.push(todo)
-                return AsyncStorage.setItem(dateKey, JSON.stringify(todos))
+                return AsyncStorage.setItem(`todos:${day}`, JSON.stringify(todos))
+            })
+    }
+
+    static deleteTodo(day, todo) {
+        return Storage.retrieveRecord(`todos:${day}`, [])
+            .then(todos => {
+                const i = todos.indexOf(todo)
+                if (i >= 0) {
+                    todos.splice(i, 1)
+                }
+                return AsyncStorage.setItem(`todos:${day}`, JSON.stringify(todos))
             })
     }
 }
