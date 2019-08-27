@@ -22,6 +22,7 @@ class Todo extends React.Component {
 
     state = {
         selected: false,
+        dragging: false,
     }
 
     longPressTimer = null
@@ -29,15 +30,15 @@ class Todo extends React.Component {
     panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
         onPanResponderGrant: (e, g) => {
-            console.log('grant')
             // this.props.deleteTodo(this.props.day, this.props.todo)
 
             if (this.state.selected || this.props.multiSelectActivated) {
                 this.toggleSelection()
             } else {
                 this.longPressTimer = setTimeout(() => {
-                    this.setState({selected: true})
+                    this.setState({selected: true, dragging: true})
                     this.props.onSelection()
+                    this.props.onDrag()
                     this.clearLongPressTimer()
                 }, 500)
             }
@@ -52,25 +53,32 @@ class Todo extends React.Component {
                     this.clearLongPressTimer()
                 }
             }
+            if (this.state.dragging && this.isHoveringOverActionPaneBounds(g.moveX) !== this.props.hoveringOnActionPane) {
+                this.props.onActionPaneHover(!this.props.hoveringOnActionPane)
+            }
         },
         onPanResponderRelease: (e, g) => {
-            if (this.state.selected) {
-                const {width} = Dimensions.get('window')
-                if (this.props.day === 'today') {
-                    if (width * .8 < g.moveX) {
-                        console.log('dropped on right edge')
-                    }
-                } else {
-                    if (width * .2 > g.moveX) {
-                        console.log('dropped on left edge')
-                    }
-                }
+            if (this.state.selected && this.isHoveringOverActionPaneBounds(g.moveX)) {
+                this.props.onActionPaneDrop(this.props.day, this.props.todo)
+            } else if (this.state.selected) {
+                this.props.onDrag(false)
+                this.props.onDeselection()
+                this.setState({dragging: false})
             } else {
                 this.clearLongPressTimer()
             }
         },
         onPanResponderTerminationRequest: () => false
     })
+
+    isHoveringOverActionPaneBounds = (x) => {
+        const {width} = Dimensions.get('window')
+        if (this.props.day === 'today') {
+            return width * .8 < x
+        } else {
+            return width * .2 > x
+        }
+    }
 
     toggleSelection = () => {
         this.state.selected ? this.props.onDeselection() : this.props.onSelection()
@@ -110,6 +118,10 @@ Todo.propTypes = {
     onSelection: PropTypes.func.isRequired,
     onDeselection: PropTypes.func.isRequired,
     deleteTodo: PropTypes.func.isRequired,
+    onDrag: PropTypes.func.isRequired,
+    onActionPaneHover: PropTypes.func.isRequired,
+    onActionPaneDrop: PropTypes.func.isRequired,
+    hoveringOnActionPane: PropTypes.bool.isRequired,
 }
 
 export default Todo

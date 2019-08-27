@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import {Animated, View, PanResponder, StyleSheet, Dimensions, Keyboard} from 'react-native'
-import ActionPane from './pane/ActionPane'
+import ActionPane from './pane/ActionPaneContainer'
 
 const styles = StyleSheet.create({
     container: {

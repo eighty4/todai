@@ -19,8 +19,11 @@ class ActionPane extends React.PureComponent {
 
     render() {
         const {height} = Dimensions.get('window')
+        const containerStyles = [styles.container, {height}]
+        if (this.props.dragging) containerStyles.push({backgroundColor: 'lemonchiffon'})
+        if (this.props.hovering) containerStyles.push({backgroundColor: 'limegreen'})
         return (
-            <TouchableOpacity style={{...styles.container, height}} onPress={this.onPanePress}>
+            <TouchableOpacity style={containerStyles} onPress={this.onPanePress}>
                 <ActionPaneButton onPress={this.onPanePress} day={this.props.day}/>
             </TouchableOpacity>
         )
@@ -30,6 +33,8 @@ class ActionPane extends React.PureComponent {
 ActionPane.propTypes = {
     onPan: PropTypes.func.isRequired,
     day: PropTypes.oneOf(['today', 'tomorrow']).isRequired,
+    dragging: PropTypes.bool.isRequired,
+    hovering: PropTypes.bool.isRequired,
 }
 
 export default ActionPane

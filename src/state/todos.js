@@ -14,23 +14,23 @@ export const DELETE_TODO = 'DELETE_TODO'
 export const DELETE_TODO_SUCCESS = 'DELETE_TODO_SUCCESS'
 export const DELETE_TODO_FAILURE = 'DELETE_TODO_FAILURE'
 
-export const loadTodos = () => ({
-    type: LOAD_TODOS,
-})
+export const DRAG_TODO = 'DRAG_TODO'
+export const DROP_TODO_HOVER = 'DROP_TODO_HOVER'
+export const DROP_TODO = 'DROP_TODO'
 
-export const addTodo = (day, todo) => ({
-    type: ADD_TODO,
-    day,
-    todo,
-})
+export const loadTodos = () => ({type: LOAD_TODOS})
 
-export const deleteTodo = (day, todo) => ({
-    type: DELETE_TODO,
-    day,
-    todo,
-})
+export const addTodo = (day, todo) => ({type: ADD_TODO, day, todo})
 
-const initialState = {today: [], tomorrow: [], loading: false, error: false, adding: false}
+export const deleteTodo = (day, todo) => ({type: DELETE_TODO, day, todo})
+
+export const dragTodo = (dragging = true) => ({type: DRAG_TODO, dragging})
+
+export const hoverTodoOnActionPane = (hoveringOnActionPane = true) => ({type: DROP_TODO_HOVER, hoveringOnActionPane})
+
+export const dropTodoOnActionPane = (day, todo) => ({type: DROP_TODO, day, todo})
+
+const initialState = {today: [], tomorrow: [], loading: false, error: false, adding: false, dragging: false, hoveringOnActionPane: false}
 
 export const reducers = (prevState = initialState, action) => {
     switch (action.type) {
@@ -53,6 +53,25 @@ export const reducers = (prevState = initialState, action) => {
                 ...prevState,
                 loading: false,
                 error,
+            }
+        case DRAG_TODO:
+            const {dragging} = action
+            return {
+                ...prevState,
+                dragging,
+            }
+        case DROP_TODO_HOVER:
+            const {hoveringOnActionPane} = action
+            return {
+                ...prevState,
+                hoveringOnActionPane,
+            }
+        case DROP_TODO:
+            return {
+                ...prevState,
+                loading: true,
+                dragging: false,
+                hoveringOnActionPane: false,
             }
         default:
             return prevState
@@ -88,9 +107,18 @@ export const deleteTodoEpic = action$ => action$.pipe(
     ),
 )
 
+export const moveTodoToOtherDayEpic = action$ => action$.pipe(
+    filter(action => action.type === DROP_TODO),
+    mergeMap(({day, todo}) => Storage.moveTodo(day, todo)
+        .then(() => ({type: ADD_TODO_SUCCESS}))
+        .catch(error => ({type: ADD_TODO_FAILURE, error}))
+    ),
+)
+
 export const epics = [
     loadTodosEpic,
     addTodoEpic,
     refreshTodosEpic,
     deleteTodoEpic,
+    moveTodoToOtherDayEpic,
 ]

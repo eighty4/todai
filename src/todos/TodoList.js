@@ -47,6 +47,10 @@ class TodoList extends React.PureComponent {
                      onSelection={this.onTodoSelection}
                      onDeselection={this.onTodoDeselection}
                      deleteTodo={this.props.deleteTodo}
+                     onDrag={this.props.dragTodo}
+                     onActionPaneHover={this.props.hoverTodoOnActionPane}
+                     onActionPaneDrop={this.props.dropTodoOnActionPane}
+                     hoveringOnActionPane={this.props.hoveringOnActionPane}
         />
     }
 }
@@ -55,6 +59,10 @@ TodoList.propTypes = {
     day: PropTypes.string.isRequired,
     todos: PropTypes.array.isRequired,
     deleteTodo: PropTypes.func.isRequired,
+    dragTodo: PropTypes.func.isRequired,
+    hoverTodoOnActionPane: PropTypes.func.isRequired,
+    dropTodoOnActionPane: PropTypes.func.isRequired,
+    hoveringOnActionPane: PropTypes.bool.isRequired,
 }
 
 export default TodoList
