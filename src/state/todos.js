@@ -2,6 +2,8 @@ import Storage from './Storage'
 import {of} from 'rxjs'
 import {filter, mergeMap} from 'rxjs/operators'
 
+export const CHANGE_VIEWING_DAY = 'CHANGE_VIEWING_DAY'
+
 export const LOAD_TODOS = 'LOAD_TODOS'
 export const LOAD_TODOS_SUCCESS = 'LOAD_TODOS_SUCCESS'
 export const LOAD_TODOS_FAILURE = 'LOAD_TODOS_FAILURE'
@@ -18,9 +20,11 @@ export const DRAG_TODO = 'DRAG_TODO'
 export const DROP_TODO_HOVER = 'DROP_TODO_HOVER'
 export const DROP_TODO = 'DROP_TODO'
 
+export const changeViewingDay = () => ({type: CHANGE_VIEWING_DAY})
+
 export const loadTodos = () => ({type: LOAD_TODOS})
 
-export const addTodo = (day, todo) => ({type: ADD_TODO, day, todo})
+export const addTodo = (todo) => ({type: ADD_TODO, todo})
 
 export const deleteTodo = (day, todo) => ({type: DELETE_TODO, day, todo})
 
@@ -30,10 +34,25 @@ export const hoverTodoOnActionPane = (hoveringOnActionPane = true) => ({type: DR
 
 export const dropTodoOnActionPane = (day, todo) => ({type: DROP_TODO, day, todo})
 
-const initialState = {today: [], tomorrow: [], loading: false, error: false, adding: false, dragging: false, hoveringOnActionPane: false}
+const initialState = {
+    viewing: 'today',
+    today: [],
+    tomorrow: [],
+    loading: false,
+    error: false,
+    adding: false,
+    dragging: false,
+    hoveringOnActionPane: false
+}
 
 export const reducers = (prevState = initialState, action) => {
     switch (action.type) {
+        case CHANGE_VIEWING_DAY:
+            const viewing = prevState.viewing === 'today' ? 'tomorrow' : 'today'
+            return {
+                ...prevState,
+                viewing,
+            }
         case LOAD_TODOS:
             return {
                 ...prevState,
@@ -86,9 +105,9 @@ export const loadTodosEpic = action$ => action$.pipe(
     ),
 )
 
-export const addTodoEpic = action$ => action$.pipe(
+export const addTodoEpic = (action$, state$) => action$.pipe(
     filter(action => action.type === ADD_TODO),
-    mergeMap(({day, todo}) => Storage.addTodo(day, todo)
+    mergeMap(({todo}) => Storage.addTodo(state$.value.todos.viewing, todo)
         .then(() => ({type: ADD_TODO_SUCCESS}))
         .catch(error => ({type: ADD_TODO_FAILURE, error}))
     ),

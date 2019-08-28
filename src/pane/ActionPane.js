@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import {StyleSheet, TouchableOpacity, Dimensions, Keyboard} from 'react-native'
-import ActionPaneButton from './ActionPaneButton'
+import {DeleteButton, PanButton, MultiMoveButton, ConfirmButton} from "./ActionPaneButtons";
 
 const styles = StyleSheet.create({
     container: {
@@ -24,15 +24,19 @@ class ActionPane extends React.PureComponent {
         if (this.props.hovering) containerStyles.push({backgroundColor: 'limegreen'})
         return (
             <TouchableOpacity style={containerStyles} onPress={this.onPanePress}>
-                <ActionPaneButton onPress={this.onPanePress} day={this.props.day}/>
+                <PanButton onPress={this.onPanePress} day={this.props.currentViewingDay}/>
+                {/*<DeleteButton onPress={this.props.deleteTodo}/>*/}
+                {/*<MultiMoveButton onPress={this.props.deleteTodo}/>*/}
+                {/*<ConfirmButton onPress={this.props.deleteTodo}/>*/}
             </TouchableOpacity>
         )
     }
 }
 
 ActionPane.propTypes = {
+    deleteTodo: PropTypes.func.isRequired,
     onPan: PropTypes.func.isRequired,
-    day: PropTypes.oneOf(['today', 'tomorrow']).isRequired,
+    currentViewingDay: PropTypes.oneOf(['today', 'tomorrow']).isRequired,
     dragging: PropTypes.bool.isRequired,
     hovering: PropTypes.bool.isRequired,
 }

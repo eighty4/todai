@@ -30,8 +30,6 @@ class Todo extends React.Component {
     panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
         onPanResponderGrant: (e, g) => {
-            // this.props.deleteTodo(this.props.day, this.props.todo)
-
             if (this.state.selected || this.props.multiSelectActivated) {
                 this.toggleSelection()
             } else {
@@ -40,7 +38,7 @@ class Todo extends React.Component {
                     this.props.onSelection()
                     this.props.onDrag()
                     this.clearLongPressTimer()
-                }, 500)
+                }, 300)
             }
         },
         onPanResponderMove: (e, g) => {
@@ -59,6 +57,7 @@ class Todo extends React.Component {
         },
         onPanResponderRelease: (e, g) => {
             if (this.state.selected && this.isHoveringOverActionPaneBounds(g.moveX)) {
+                this.props.onDeselection()
                 this.props.onActionPaneDrop(this.props.day, this.props.todo)
             } else if (this.state.selected) {
                 this.props.onDrag(false)

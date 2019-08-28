@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import {ScrollView, StyleSheet} from 'react-native'
 import Todo from './Todo'
-import TodoInputContainer from '../input/TodoInputContainer'
+import TodoInput from '../input/TodoInputContainer'
 
 const styles = StyleSheet.create({
     container: {
@@ -27,14 +27,11 @@ class TodoList extends React.PureComponent {
 
     render() {
         const scrollEnabled = false // todo check height of content to toggle on/off
-        const containerStyles = {
-            ...styles.container,
-            [this.props.day === 'today' ? 'paddingLeft' : 'paddingRight']: 20,
-        }
+        const containerStyles = [styles.container, {[this.props.day === 'today' ? 'paddingLeft' : 'paddingRight']: 20}]
         return (
             <ScrollView style={containerStyles} scrollEnabled={scrollEnabled}>
                 {this.props.todos.map(this.renderTodo)}
-                <TodoInputContainer day={this.props.day}/>
+                <TodoInput/>
             </ScrollView>
         )
     }
@@ -43,7 +40,7 @@ class TodoList extends React.PureComponent {
         return <Todo key={todo}
                      todo={todo}
                      day={this.props.day}
-                     multiSelectActivated={!!this.state.selectedQuantity}
+                     multiSelectActivated={this.state.selectedQuantity > 0}
                      onSelection={this.onTodoSelection}
                      onDeselection={this.onTodoDeselection}
                      deleteTodo={this.props.deleteTodo}

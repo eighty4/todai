@@ -33,7 +33,7 @@ class TodoInput extends React.Component {
 
     onSubmitEditing = (e) => {
         if (this.state.text.length > 0) {
-            this.props.addTodo(this.props.day, e.nativeEvent.text)
+            this.props.addTodo(e.nativeEvent.text)
             this.setState({text: ''})
         }
     }
@@ -55,7 +55,6 @@ class TodoInput extends React.Component {
 }
 
 TodoInput.propTypes = {
-    day: PropTypes.string.isRequired,
     addTodo: PropTypes.func.isRequired,
 }
 

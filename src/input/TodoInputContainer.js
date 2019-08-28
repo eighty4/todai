@@ -3,9 +3,7 @@ import {connect} from 'react-redux'
 import {addTodo} from '../state/todos'
 import TodoInput from './TodoInput'
 
-const mapStateToProps = () => {
-    return {}
-}
+const mapStateToProps = () => ({})
 
 const mapDispatchToProps = (dispatch) => {
     return {
