@@ -1,25 +1,31 @@
 import React from 'react'
 import {connect} from 'react-redux'
 import {
-    deleteTodo,
+    selectTodo,
+    deselectTodo,
     dragTodo,
     hoverTodoOnActionPane,
-    dropTodoOnActionPane,
+    moveSelectedTodos,
+    completeTodo,
 } from '../state/todos'
 import TodoList from './TodoList'
 
 const mapStateToProps = (state) => {
     return {
+        selectedTodos: state.todos.selected,
         hoveringOnActionPane: state.todos.hoveringOnActionPane,
+        multiSelectActivated: state.todos.selected.length > 0,
     }
 }
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        deleteTodo: (day, todo) => dispatch(deleteTodo(day, todo)),
+        selectTodo: (todo) => dispatch(selectTodo(todo)),
+        deselectTodo: (todo) => dispatch(deselectTodo(todo)),
+        moveSelectedTodos: () => dispatch(moveSelectedTodos()),
         dragTodo: (dragging) => dispatch(dragTodo(dragging)),
         hoverTodoOnActionPane: (hovering) => dispatch(hoverTodoOnActionPane(hovering)),
-        dropTodoOnActionPane: (day, todo) => dispatch(dropTodoOnActionPane(day, todo)),
+        completeTodo: (todo) => dispatch(completeTodo(todo))
     }
 }
 

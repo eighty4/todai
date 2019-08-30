@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import {TouchableOpacity, StyleSheet, Dimensions} from 'react-native'
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome'
-import {faAngleLeft, faAngleRight, faTrashAlt, faExchangeAlt, faCheck} from "@fortawesome/free-solid-svg-icons";
+import {faAngleLeft, faAngleRight, faTrashAlt, faExchangeAlt, faCheckDouble} from "@fortawesome/free-solid-svg-icons";
 
 const styles = StyleSheet.create({
     container: {
@@ -45,7 +45,7 @@ ActionPaneButton.propTypes = {
 export class PanButton extends React.PureComponent {
 
     static propTypes = {
-        onPress: PropTypes.func.isRequired,
+        onPress: PropTypes.func,
         day: PropTypes.oneOf(['today', 'tomorrow']).isRequired,
     }
 
@@ -74,7 +74,7 @@ export class DeleteButton extends React.PureComponent {
     }
 }
 
-export class MultiMoveButton extends React.PureComponent {
+export class MoveButton extends React.PureComponent {
 
     static propTypes = {
         onPress: PropTypes.func.isRequired,
@@ -87,7 +87,7 @@ export class MultiMoveButton extends React.PureComponent {
     }
 }
 
-export class ConfirmButton extends React.PureComponent {
+export class CompleteButton extends React.PureComponent {
 
     static propTypes = {
         onPress: PropTypes.func.isRequired,
@@ -95,7 +95,7 @@ export class ConfirmButton extends React.PureComponent {
 
     render() {
         return (
-            <ActionPaneButton heightModifier={.75} onPress={this.props.onPress} backgroundColor="forestgreen" icon={faCheck}/>
+            <ActionPaneButton heightModifier={.75} onPress={this.props.onPress} backgroundColor="forestgreen" icon={faCheckDouble}/>
         )
     }
 }

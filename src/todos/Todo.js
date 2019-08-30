@@ -7,22 +7,29 @@ import {
     PanResponder,
     Dimensions,
 } from 'react-native'
+import {CheckBox} from 'react-native-elements'
 
 const styles = StyleSheet.create({
     container: {
         marginBottom: 10,
-        padding: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
     },
     text: {
         fontSize: 24,
     },
+    checkBoxContainer: {
+        marginHorizontal: 0,
+    }
 })
 
 class Todo extends React.Component {
 
     state = {
-        selected: false,
+        selecting: false,
         dragging: false,
+        completing: false,
     }
 
     longPressTimer = null
@@ -30,58 +37,61 @@ class Todo extends React.Component {
     panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
         onPanResponderGrant: (e, g) => {
-            if (this.state.selected || this.props.multiSelectActivated) {
+            this.setState({selecting: true})
+            if (this.props.selected || this.props.multiSelectActivated) {
                 this.toggleSelection()
             } else {
                 this.longPressTimer = setTimeout(() => {
-                    this.setState({selected: true, dragging: true})
-                    this.props.onSelection()
+                    this.setState({dragging: true})
+                    this.props.selectTodo(this.props.todo)
                     this.props.onDrag()
                     this.clearLongPressTimer()
                 }, 300)
             }
         },
         onPanResponderMove: (e, g) => {
-            if (this.longPressTimer) {
-                if (g.moveX < this.state.x
-                    || g.moveX > (this.state.x + this.state.width)
-                    || g.moveY < this.state.y
-                    || g.moveY > (this.state.y + this.state.height)) {
-                    console.log('moved out of container, aborting')
-                    this.clearLongPressTimer()
-                }
+            if (this.longPressTimer && this.isOverTodo(g.moveX, g.moveY)) {
+                this.clearLongPressTimer()
             }
-            if (this.state.dragging && this.isHoveringOverActionPaneBounds(g.moveX) !== this.props.hoveringOnActionPane) {
+            if (this.state.dragging && this.isOverActionPane(g.moveX) !== this.props.hoveringOnActionPane) {
                 this.props.onActionPaneHover(!this.props.hoveringOnActionPane)
             }
         },
+
         onPanResponderRelease: (e, g) => {
-            if (this.state.selected && this.isHoveringOverActionPaneBounds(g.moveX)) {
-                this.props.onDeselection()
-                this.props.onActionPaneDrop(this.props.day, this.props.todo)
-            } else if (this.state.selected) {
+            const stateChange = {selecting: false}
+            if (this.props.selected && g.moveX !== 0 && this.isOverActionPane(g.moveX)) {
+                this.props.moveSelectedTodos()
+                stateChange.dragging = false
+            } else if (this.state.selecting && this.props.selected) {
                 this.props.onDrag(false)
-                this.props.onDeselection()
-                this.setState({dragging: false})
+                stateChange.dragging = false
+            }  else if (this.props.selected) {
+                this.props.deselectTodo(this.props.todo)
             } else {
                 this.clearLongPressTimer()
             }
+            this.setState(stateChange)
         },
         onPanResponderTerminationRequest: () => false
     })
 
-    isHoveringOverActionPaneBounds = (x) => {
+    isOverActionPane = (x) => {
         const {width} = Dimensions.get('window')
         if (this.props.day === 'today') {
-            return width * .8 < x
+            return x > width * .8
         } else {
-            return width * .2 > x
+            console.log(`isOverActionPane: ${x} < ${width} * .2`)
+            return x < width * .2
         }
     }
 
+    isOverTodo = (x, y) => {
+        return x < this.state.x || x > (this.state.x + this.state.width) || y < this.state.y || y > (this.state.y + this.state.height)
+    }
+
     toggleSelection = () => {
-        this.state.selected ? this.props.onDeselection() : this.props.onSelection()
-        this.setState({selected: !this.state.selected})
+        this.props.selected ? this.props.deselectTodo(this.props.todo) : this.props.selectTodo(this.props.todo)
     }
 
     clearLongPressTimer = () => {
@@ -100,10 +110,20 @@ class Todo extends React.Component {
         this.clearLongPressTimer()
     }
 
+    completeTodo = () => {
+        this.setState({completing: true})
+        this.props.completeTodo(this.props.todo)
+    }
+
     render() {
-        const containerStyles = [styles.container, {backgroundColor: this.state.selected ? 'skyblue' : 'rebeccapurple'}]
+        const containerStyles = [styles.container, {backgroundColor: this.props.selected ? 'skyblue' : 'rebeccapurple'}]
         return (
             <Animated.View style={containerStyles} {...this.panResponder.panHandlers} onLayout={this.onLayout}>
+                <CheckBox checked={this.state.completing}
+                          containerStyle={styles.checkBoxContainer}
+                          size={28}
+                          onPress={this.completeTodo}
+                />
                 <Text style={styles.text}>{this.props.todo}</Text>
             </Animated.View>
         )
@@ -111,15 +131,16 @@ class Todo extends React.Component {
 }
 
 Todo.propTypes = {
+    selected: PropTypes.bool.isRequired,
     todo: PropTypes.string.isRequired,
     day: PropTypes.oneOf(['today', 'tomorrow']).isRequired,
     multiSelectActivated: PropTypes.bool.isRequired,
-    onSelection: PropTypes.func.isRequired,
-    onDeselection: PropTypes.func.isRequired,
-    deleteTodo: PropTypes.func.isRequired,
+    selectTodo: PropTypes.func.isRequired,
+    completeTodo: PropTypes.func.isRequired,
+    deselectTodo: PropTypes.func.isRequired,
     onDrag: PropTypes.func.isRequired,
     onActionPaneHover: PropTypes.func.isRequired,
-    onActionPaneDrop: PropTypes.func.isRequired,
+    moveSelectedTodos: PropTypes.func.isRequired,
     hoveringOnActionPane: PropTypes.bool.isRequired,
 }
 

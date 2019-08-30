@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import {StyleSheet, TouchableOpacity, Dimensions, Keyboard} from 'react-native'
-import {DeleteButton, PanButton, MultiMoveButton, ConfirmButton} from "./ActionPaneButtons";
+import {DeleteButton, PanButton, MoveButton, CompleteButton} from "./ActionPaneButtons";
 
 const styles = StyleSheet.create({
     container: {
@@ -24,21 +24,35 @@ class ActionPane extends React.PureComponent {
         if (this.props.hovering) containerStyles.push({backgroundColor: 'limegreen'})
         return (
             <TouchableOpacity style={containerStyles} onPress={this.onPanePress}>
-                <PanButton onPress={this.onPanePress} day={this.props.currentViewingDay}/>
-                {/*<DeleteButton onPress={this.props.deleteTodo}/>*/}
-                {/*<MultiMoveButton onPress={this.props.deleteTodo}/>*/}
-                {/*<ConfirmButton onPress={this.props.deleteTodo}/>*/}
+                {this.getActionPaneButtons()}
             </TouchableOpacity>
         )
+    }
+
+    getActionPaneButtons() {
+        if (this.props.dragging) {
+            return <MoveButton key="move" onPress={this.props.moveSelectedTodos}/>
+        } else if (!this.props.userHasSelectedTodos) {
+            return <PanButton onPress={this.onPanePress} day={this.props.currentViewingDay}/>
+        } else {
+            return [
+                <DeleteButton key="delete" onPress={this.props.deleteSelectedTodos}/>,
+                <MoveButton key="move" onPress={this.props.moveSelectedTodos}/>,
+                <CompleteButton key="confirm" onPress={this.props.completeSelectedTodos}/>,
+            ]
+        }
     }
 }
 
 ActionPane.propTypes = {
-    deleteTodo: PropTypes.func.isRequired,
+    deleteSelectedTodos: PropTypes.func.isRequired,
+    moveSelectedTodos: PropTypes.func.isRequired,
+    completeSelectedTodos: PropTypes.func.isRequired,
     onPan: PropTypes.func.isRequired,
     currentViewingDay: PropTypes.oneOf(['today', 'tomorrow']).isRequired,
     dragging: PropTypes.bool.isRequired,
     hovering: PropTypes.bool.isRequired,
+    userHasSelectedTodos: PropTypes.bool.isRequired,
 }
 
 export default ActionPane

@@ -13,18 +13,6 @@ const styles = StyleSheet.create({
 
 class TodoList extends React.PureComponent {
 
-    state = {
-        selectedQuantity: 0,
-    }
-
-    onTodoSelection = () => {
-        this.setState({selectedQuantity: this.state.selectedQuantity + 1})
-    }
-
-    onTodoDeselection = () => {
-        this.setState({selectedQuantity: this.state.selectedQuantity - 1})
-    }
-
     render() {
         const scrollEnabled = false // todo check height of content to toggle on/off
         const containerStyles = [styles.container, {[this.props.day === 'today' ? 'paddingLeft' : 'paddingRight']: 20}]
@@ -38,15 +26,16 @@ class TodoList extends React.PureComponent {
 
     renderTodo = (todo) => {
         return <Todo key={todo}
+                     selected={this.props.selectedTodos.indexOf(todo) !== -1}
                      todo={todo}
                      day={this.props.day}
-                     multiSelectActivated={this.state.selectedQuantity > 0}
-                     onSelection={this.onTodoSelection}
-                     onDeselection={this.onTodoDeselection}
-                     deleteTodo={this.props.deleteTodo}
+                     multiSelectActivated={this.props.multiSelectActivated}
+                     selectTodo={this.props.selectTodo}
+                     completeTodo={this.props.completeTodo}
+                     deselectTodo={this.props.deselectTodo}
                      onDrag={this.props.dragTodo}
                      onActionPaneHover={this.props.hoverTodoOnActionPane}
-                     onActionPaneDrop={this.props.dropTodoOnActionPane}
+                     moveSelectedTodos={this.props.moveSelectedTodos}
                      hoveringOnActionPane={this.props.hoveringOnActionPane}
         />
     }
@@ -55,11 +44,15 @@ class TodoList extends React.PureComponent {
 TodoList.propTypes = {
     day: PropTypes.string.isRequired,
     todos: PropTypes.array.isRequired,
-    deleteTodo: PropTypes.func.isRequired,
+    selectedTodos: PropTypes.array.isRequired,
+    selectTodo: PropTypes.func.isRequired,
+    completeTodo: PropTypes.func.isRequired,
+    deselectTodo: PropTypes.func.isRequired,
     dragTodo: PropTypes.func.isRequired,
     hoverTodoOnActionPane: PropTypes.func.isRequired,
-    dropTodoOnActionPane: PropTypes.func.isRequired,
+    moveSelectedTodos: PropTypes.func.isRequired,
     hoveringOnActionPane: PropTypes.bool.isRequired,
+    multiSelectActivated: PropTypes.bool.isRequired,
 }
 
 export default TodoList
