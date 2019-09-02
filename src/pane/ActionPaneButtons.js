@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import {TouchableOpacity, StyleSheet, Dimensions} from 'react-native'
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome'
-import {faAngleLeft, faAngleRight, faTrashAlt, faExchangeAlt, faCheckDouble} from "@fortawesome/free-solid-svg-icons";
+import {faAngleLeft, faAngleRight, faTrashAlt, faExchangeAlt, faCheckDouble, faTimes} from '@fortawesome/free-solid-svg-icons'
 
 const styles = StyleSheet.create({
     container: {
@@ -23,12 +23,12 @@ class ActionPaneButton extends React.PureComponent {
 
     render() {
         const {height, width} = Dimensions.get('window')
-        const backgroundColor = this.props.backgroundColor || "white"
+        const backgroundColor = this.props.backgroundColor || 'white'
         const additionalContainerStyles = {backgroundColor, width: width * .125, height: height * .1}
         if (this.props.heightModifier) additionalContainerStyles.height = additionalContainerStyles.height * this.props.heightModifier
         return (
             <TouchableOpacity style={[styles.container, additionalContainerStyles]} onPress={this.onButtonPress}>
-                <FontAwesomeIcon icon={this.props.icon} size={20} style={styles.icon}/>
+                <FontAwesomeIcon icon={this.props.icon} size={this.props.size || 22} style={styles.icon} color={this.props.color}/>
             </TouchableOpacity>
         )
     }
@@ -37,7 +37,8 @@ class ActionPaneButton extends React.PureComponent {
 ActionPaneButton.propTypes = {
     onPress: PropTypes.func.isRequired,
     heightModifier: PropTypes.number,
-    textColor: PropTypes.string,
+    color: PropTypes.string,
+    size: PropTypes.number,
     backgroundColor: PropTypes.string,
     icon: PropTypes.any.isRequired,
 }
@@ -96,6 +97,19 @@ export class CompleteButton extends React.PureComponent {
     render() {
         return (
             <ActionPaneButton heightModifier={.75} onPress={this.props.onPress} backgroundColor="forestgreen" icon={faCheckDouble}/>
+        )
+    }
+}
+
+export class DeselectButton extends React.PureComponent {
+
+    static propTypes = {
+        onPress: PropTypes.func.isRequired,
+    }
+
+    render() {
+        return (
+            <ActionPaneButton heightModifier={.75} onPress={this.props.onPress} color="firebrick" icon={faTimes} size={30}/>
         )
     }
 }

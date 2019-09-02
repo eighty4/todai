@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import {StyleSheet, TouchableOpacity, Dimensions, Keyboard} from 'react-native'
-import {DeleteButton, PanButton, MoveButton, CompleteButton} from "./ActionPaneButtons";
+import {DeleteButton, PanButton, MoveButton, CompleteButton, DeselectButton} from './ActionPaneButtons'
 
 const styles = StyleSheet.create({
     container: {
@@ -39,6 +39,7 @@ class ActionPane extends React.PureComponent {
                 <DeleteButton key="delete" onPress={this.props.deleteSelectedTodos}/>,
                 <MoveButton key="move" onPress={this.props.moveSelectedTodos}/>,
                 <CompleteButton key="confirm" onPress={this.props.completeSelectedTodos}/>,
+                <DeselectButton key="deselect" onPress={this.props.deselectSelectedTodos}/>,
             ]
         }
     }

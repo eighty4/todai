@@ -5,6 +5,7 @@ import {
     deleteSelectedTodos,
     moveSelectedTodos,
     completeSelectedTodos,
+    deselectSelectedTodos,
 } from '../state/todos'
 
 const mapStateToProps = (state) => {
@@ -21,6 +22,7 @@ const mapDispatchToProps = (dispatch) => {
         deleteSelectedTodos: () => dispatch(deleteSelectedTodos()),
         moveSelectedTodos: () => dispatch(moveSelectedTodos()),
         completeSelectedTodos: () => dispatch(completeSelectedTodos()),
+        deselectSelectedTodos: () => dispatch(deselectSelectedTodos()),
     }
 }
 

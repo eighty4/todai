@@ -17,6 +17,7 @@ export const UNDO_COMPLETE_TODO = 'UNDO_COMPLETE_TODO'
 export const DELETE_SELECTED_TODOS = 'DELETE_SELECTED_TODOS'
 export const MOVE_SELECTED_TODOS = 'MOVE_SELECTED_TODOS'
 export const COMPLETE_SELECTED_TODOS = 'COMPLETE_SELECTED_TODOS'
+export const DESELECT_SELECTED_TODOS = 'DESELECT_SELECTED_TODOS'
 
 export const TOGGLE_SHOWING_COMPLETED_TODOS = 'TOGGLE_SHOWING_COMPLETED_TODOS'
 
@@ -40,6 +41,7 @@ export const undoCompleteTodo = (todo) => ({type: UNDO_COMPLETE_TODO, todo})
 export const deleteSelectedTodos = () => ({type: DELETE_SELECTED_TODOS})
 export const moveSelectedTodos = () => ({type: MOVE_SELECTED_TODOS})
 export const completeSelectedTodos = () => ({type: COMPLETE_SELECTED_TODOS})
+export const deselectSelectedTodos = () => ({type: DESELECT_SELECTED_TODOS})
 
 export const toggleShowingCompletedTodos = () => ({type: TOGGLE_SHOWING_COMPLETED_TODOS})
 
@@ -91,6 +93,11 @@ export const reducers = (prevState = initialState, action) => {
             return {
                 ...prevState,
                 selectedIds: prevState.selectedIds.filter(todoId => todoId !== action.todoId),
+            }
+        case DESELECT_SELECTED_TODOS:
+            return {
+                ...prevState,
+                selectedIds: [],
             }
         case TOGGLE_SHOWING_COMPLETED_TODOS:
             return {

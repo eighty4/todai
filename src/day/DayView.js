@@ -112,7 +112,7 @@ class DayView extends React.PureComponent {
         return (
             <TouchableOpacity onPress={this.toggleShowingCompletedTodos}>
                 <Text style={styles.displayCompletedToggle}>
-                    {this.props.hideCompletedTodos ? '+' : '-'} {this.props.completedTodos.length} Completed
+                    {this.props.completedTodos.length} Completed
                 </Text>
             </TouchableOpacity>
         )
