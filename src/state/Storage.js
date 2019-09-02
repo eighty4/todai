@@ -1,12 +1,13 @@
 import {AsyncStorage} from 'react-native'
 import dayjs from 'dayjs'
 
-const removeFromArray = (array, item) => {
-    const j = array.indexOf(item)
-    if (j >= 0) {
-        array.splice(j, 1)
-    }
-}
+const createId = () => Math.floor(Math.random() * Math.floor(1000))
+
+const currentTime = () => dayjs().format('YYYY-MM-DDTHH:mm:ssZ')
+
+const conformToArray = todoOrTodos => todoOrTodos instanceof Array ? todoOrTodos : [todoOrTodos]
+
+const mapToIdArray = todoOrTodos => conformToArray(todoOrTodos).map(todo => todo.id)
 
 const read = (key, defaultValue) => {
     return AsyncStorage
@@ -18,11 +19,20 @@ const write = (key, value) => {
     return AsyncStorage.setItem(key, JSON.stringify(value))
 }
 
+const removeTodos = (todos, todoIdsToRemove) => todos.filter(todo => todoIdsToRemove.indexOf(todo.id) === -1)
+
 class Storage {
+
+    static reset() {
+        return Promise.all([
+            AsyncStorage.removeItem('today'),
+            AsyncStorage.removeItem('tomorrow'),
+        ])
+    }
 
     static getTodos(day) {
         if (day) {
-            return read(day, [])
+            return read(day, {todos: [], completed: []})
         } else {
             return Promise.all([
                 Storage.getTodos('today'),
@@ -36,52 +46,60 @@ class Storage {
         }
     }
 
-    static addTodos(day, todoOrTodos) {
+    static addTodos(day, todoOrTodos, copyInsteadOfCreate) {
+        const todos = conformToArray(todoOrTodos)
         return Storage.getTodos(day)
-            .then(todos => {
-                if (todoOrTodos instanceof Array) {
-                    todoOrTodos.forEach(todo => todos.push(todo))
-                } else {
-                    todos.push(todoOrTodos)
-                }
-                return write(day, todos)
+            .then(loadedDayState => {
+                todos.forEach(todo => loadedDayState.todos.push(
+                    copyInsteadOfCreate ? todo : {id: createId(), text: todo, createdTime: currentTime()}
+                ))
+                return write(day, loadedDayState)
             })
     }
 
-    static deleteTodos(day, todoOrTodos) {
+    static deleteTodos(day, todoIdsToDelete) {
         return Storage.getTodos(day)
-            .then(todos => {
-                if (todoOrTodos instanceof Array) {
-                    for (let i = 0; i < todoOrTodos.length; i++) {
-                        removeFromArray(todos, todoOrTodos[i])
-                    }
-                } else {
-                    removeFromArray(todos, todoOrTodos)
-                }
-                return write(day, todos)
+            .then(loadedDayState => {
+                loadedDayState.todos = removeTodos(loadedDayState.todos, todoIdsToDelete)
+                loadedDayState.completed = removeTodos(loadedDayState.completed, todoIdsToDelete)
+                return write(day, loadedDayState)
             })
     }
 
-    static moveTodos(fromDay, todosToMove) {
+    static moveTodos(fromDay, todoOrTodos) {
         const toDay = fromDay === 'today' ? 'tomorrow' : 'today'
-        return Storage.addTodos(toDay, todosToMove).then(() => Storage.deleteTodos(fromDay, todosToMove))
+        return Storage.addTodos(toDay, todoOrTodos, true)
+            .then(() => Storage.deleteTodos(fromDay, mapToIdArray(todoOrTodos)))
     }
 
-    static completeTodos(day, todoOrTodos) {
-        const now = dayjs()
-        // const completedTime = now.format('YYYY-MM-DDTHH:mm:ssZ')
-        const todayDate = now.format('YYYY-MM-DD')
-        return read(`completed:${todayDate}`, [])
-            .then(completedTodos => {
-                if (todoOrTodos instanceof Array) {
-                    completedTodos.push(todoOrTodos)
+    static completeTodos(day, todoIdsToComplete) {
+        return Storage.getTodos(day).then(loadedDayState => {
+            loadedDayState.todos = loadedDayState.todos.filter(todo => {
+                if (todoIdsToComplete.indexOf(todo.id) === -1) {
+                    return true
                 } else {
-                    completedTodos.unshift(todoOrTodos)
+                    todo.completedTime = currentTime()
+                    loadedDayState.completed.unshift(todo)
+                    return false
                 }
-                return completedTodos
             })
-            .then(completedTodos => write(`completed:${todayDate}`, completedTodos))
-            .then(() => Storage.deleteTodos(day, todoOrTodos))
+            return write(day, loadedDayState)
+        })
+    }
+
+    static undoCompleteTodos(day, todoIdsToUndoComplete) {
+        return Storage.getTodos(day).then(loadedDayState => {
+            loadedDayState.completed = loadedDayState.completed.filter(todo => {
+                if (todoIdsToUndoComplete.indexOf(todo.id) === -1) {
+                    return true
+                } else {
+                    delete todo.completedTime
+                    loadedDayState.todos.push(todo)
+                    return false
+                }
+            })
+            return write(day, loadedDayState)
+        })
     }
 }
 

@@ -29,7 +29,6 @@ class Todo extends React.Component {
     state = {
         selecting: false,
         dragging: false,
-        completing: false,
     }
 
     longPressTimer = null
@@ -111,20 +110,19 @@ class Todo extends React.Component {
     }
 
     completeTodo = () => {
-        this.setState({completing: true})
-        this.props.completeTodo(this.props.todo)
+        this.props[this.props.completed ? 'undoCompleteTodo' : 'completeTodo'](this.props.todo)
     }
 
     render() {
         const containerStyles = [styles.container, {backgroundColor: this.props.selected ? 'skyblue' : 'rebeccapurple'}]
         return (
             <Animated.View style={containerStyles} {...this.panResponder.panHandlers} onLayout={this.onLayout}>
-                <CheckBox checked={this.state.completing}
+                <CheckBox checked={this.props.completed}
                           containerStyle={styles.checkBoxContainer}
                           size={28}
                           onPress={this.completeTodo}
                 />
-                <Text style={styles.text}>{this.props.todo}</Text>
+                <Text style={styles.text}>{this.props.todo.text}</Text>
             </Animated.View>
         )
     }
@@ -132,11 +130,13 @@ class Todo extends React.Component {
 
 Todo.propTypes = {
     selected: PropTypes.bool.isRequired,
-    todo: PropTypes.string.isRequired,
+    completed: PropTypes.bool.isRequired,
+    todo: PropTypes.object.isRequired,
     day: PropTypes.oneOf(['today', 'tomorrow']).isRequired,
     multiSelectActivated: PropTypes.bool.isRequired,
     selectTodo: PropTypes.func.isRequired,
     completeTodo: PropTypes.func.isRequired,
+    undoCompleteTodo: PropTypes.func.isRequired,
     deselectTodo: PropTypes.func.isRequired,
     onDrag: PropTypes.func.isRequired,
     onActionPaneHover: PropTypes.func.isRequired,

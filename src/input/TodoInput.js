@@ -6,13 +6,12 @@ const styles = StyleSheet.create({
     container: {
         borderBottomColor: 'darkgrey',
         borderBottomWidth: StyleSheet.hairlineWidth,
+        marginBottom: 10,
     },
     input: {
         fontSize: 20,
         fontStyle: 'italic',
-        paddingBottom: 10,
-        paddingTop: 10,
-        zIndex: 200,
+        paddingVertical: 10,
     },
 })
 
