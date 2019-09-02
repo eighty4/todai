@@ -48,7 +48,7 @@ class DayPan extends React.PureComponent {
                     this.animatedX.setValue(g.moveX - g.x0)
                     break
                 case DayPan.TOMORROW:
-                    this.animatedX.setValue(g.moveX - g.x0 - width)
+                    this.animatedX.setValue(g.moveX - g.x0 - width * .8)
                     break
             }
         },
