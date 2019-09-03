@@ -177,7 +177,7 @@ export const moveSelectedTodosEpic = (action$, state$) => action$.pipe(
 )
 
 export const completeSelectedTodosEpic = (action$, state$) => action$.pipe(
-    filter(action => action.type === MOVE_SELECTED_TODOS),
+    filter(action => action.type === COMPLETE_SELECTED_TODOS),
     mergeMap(() => {
         const {viewing, selectedIds} = state$.value.todos
         return Storage.completeTodos(viewing, selectedIds)
