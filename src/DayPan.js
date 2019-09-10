@@ -90,7 +90,7 @@ class DayPan extends React.PureComponent {
             width: width * 1.8,
             transform: [{
                 translateX: this.animatedX,
-            }]
+            }],
         }
         return (
             <Animated.View style={animatedViewStyles} {...this.panResponder.panHandlers}>

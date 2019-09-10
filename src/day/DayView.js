@@ -81,7 +81,9 @@ class DayView extends React.PureComponent {
     }
 
     hasCompletedAllTodayTodos() {
-        return this.props.day === 'today' && this.props.todos.length === 0 && this.props.completedTodos.length > 0
+        return this.props.day === 'today'
+            && this.props.todos.length === 0
+            && this.props.completedTodos.length > 0
     }
 
     static renderCongrats() {
@@ -90,8 +92,12 @@ class DayView extends React.PureComponent {
         </Text>
     }
 
+    onTodoDragUpdate = (index) => {
+
+    }
+
     renderTodos(todos, completed = false) {
-        return todos.map(todo => <Todo key={todo.id}
+        return todos.map((todo, index) => <Todo key={todo.id}
                                        completed={completed}
                                        selected={this.props.selectedIds.indexOf(todo.id) !== -1}
                                        todo={todo}
@@ -105,6 +111,7 @@ class DayView extends React.PureComponent {
                                        onActionPaneHover={this.props.hoverTodoOnActionPane}
                                        moveSelectedTodos={this.props.moveSelectedTodos}
                                        hoveringOnActionPane={this.props.hoveringOnActionPane}
+                                       onTodoDragUpdate={() => this.onTodoDragUpdate(index)}
         />)
     }
 
