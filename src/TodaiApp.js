@@ -4,6 +4,7 @@ import store from './state'
 import DayPan from './DayPanContainer'
 import TodosBootstrapContainer from './TodosBootstrapContainer'
 import DayViewContainer from './day/DayViewContainer'
+import MenuButton from './menu/MenuButton'
 
 export default class TodaiApp extends React.PureComponent {
 
@@ -16,6 +17,7 @@ export default class TodaiApp extends React.PureComponent {
             <Provider store={store}>
                 <TodosBootstrapContainer>
                     <DayPan {...days}/>
+                    <MenuButton/>
                 </TodosBootstrapContainer>
             </Provider>
         )
