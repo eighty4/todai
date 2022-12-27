@@ -6,6 +6,5 @@ void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     await tester.pumpWidget(const TodaiApp());
     expect(find.text('Today'), findsOneWidget);
-    expect(find.text('Add a todo'), findsOneWidget);
   });
 }
