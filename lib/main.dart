@@ -1,7 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'boomerang.dart';
+import 'day.dart';
+import 'dimensions.dart';
 
 const randomTodoLabels = <String>[
   'Woodworking project',
@@ -42,7 +44,7 @@ class TodaiApp extends StatelessWidget {
     return MaterialApp(
       title: 'Todai',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(backgroundColor: Colors.white),
+      theme: ThemeData(),
       home: const ResponsiveTodaiScreen(),
     );
   }
@@ -53,42 +55,33 @@ class ResponsiveTodaiScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     const todoCount = TodoCount.four;
-    final todoDimensions = TodoDimensions.fromScreenSize(size, todoCount);
-    final edgePadding = (size.width * .2);
-    return TodaiScreen(
-        todoCount: todoCount,
-        todoDimensions: todoDimensions,
-        edgePadding: edgePadding,
-        size: size);
+    final mediaQuery = MediaQuery.of(context);
+    final dimensions = TodaiDimensions.fromMediaQuery(
+        mediaQuery, todoCount.screenHeightProportion());
+
+    return TodaiScreen(todoCount: todoCount, dimensions: dimensions);
   }
 }
 
 class TodaiScreen extends StatefulWidget {
   final TodoCount todoCount;
-  final TodoDimensions todoDimensions;
-  final double edgePadding;
-  final Size size;
+  final TodaiDimensions dimensions;
 
   const TodaiScreen(
-      {super.key,
-      required this.todoCount,
-      required this.todoDimensions,
-      required this.edgePadding,
-      required this.size});
+      {super.key, required this.todoCount, required this.dimensions});
 
   @override
   State<TodaiScreen> createState() => _TodaiScreenState();
 }
 
 class _TodaiScreenState extends State<TodaiScreen> {
-  late TodoDay day;
+  late Day day;
 
   @override
   void initState() {
     super.initState();
-    day = TodoDay.today;
+    day = Day.today;
   }
 
   @override
@@ -98,37 +91,42 @@ class _TodaiScreenState extends State<TodaiScreen> {
       statusBarIconBrightness: Brightness.dark,
     ));
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned(
-              top: 0,
-              left: calcPositionFromLeft(),
-              bottom: 0,
-              right: calcPositionFromRight(),
-              child: TodoList(
+      body: Padding(
+        padding: widget.dimensions.devicePadding,
+        child: Container(
+          color: Colors.white,
+          child: Stack(
+            children: [
+              Positioned(
+                  top: 0,
+                  left: calcPositionFromLeft(),
+                  bottom: 0,
+                  right: calcPositionFromRight(),
+                  child: TimeBlockScreen(
+                      day: day,
+                      todoCount: widget.todoCount,
+                      dimensions: widget.dimensions)),
+              Boomerang(
                   day: day,
-                  todoCount: widget.todoCount,
-                  todoDimensions: widget.todoDimensions)),
-          Boomerang(
-              day: day,
-              edgePadding: widget.edgePadding,
-              windowSize: widget.size,
-              onTap: () => setState(() => day = day.other())),
-        ],
+                  dimensions: widget.dimensions,
+                  onTap: () => setState(() => day = day.other())),
+            ],
+          ),
+        ),
       ),
     );
   }
 
   double calcPositionFromRight() {
-    return day == TodoDay.today
-        ? widget.edgePadding
-        : widget.todoDimensions.padding;
+    return day == Day.today
+        ? widget.dimensions.gutterWidth
+        : widget.dimensions.edgePadding;
   }
 
   double calcPositionFromLeft() {
-    return day == TodoDay.today
-        ? widget.todoDimensions.padding
-        : widget.edgePadding;
+    return day == Day.today
+        ? widget.dimensions.edgePadding
+        : widget.dimensions.gutterWidth;
   }
 }
 
@@ -147,104 +145,26 @@ extension TodoDimensionFns on TodoCount {
     }
   }
 
-  int numberOfTodoDivisions() => numberOfTodos() + 1;
-
-  int numberOfPaddingDivisions() => numberOfTodoDivisions() + 1;
-
-  double todoHeightProportion() {
+  double screenHeightProportion() {
     switch (this) {
       case TodoCount.four:
-        return .16;
+        return 1 / 8; // 1 / 4 todos + 2 padding + 1 header + 1 footer
       case TodoCount.five:
-        return .128; // 4 * .16 / 5
-    }
-  }
-
-  double todoPaddingProportion() {
-    return (1 - (todoHeightProportion() * numberOfTodoDivisions())) /
-        numberOfPaddingDivisions();
-  }
-}
-
-class TodoDimensions {
-  static double calculateTodoHeight(Size size, TodoCount todoCount) {
-    return size.height * todoCount.todoHeightProportion();
-  }
-
-  static double calculateTodoPadding(Size size, TodoCount todoCount) {
-    return size.height * todoCount.todoPaddingProportion();
-  }
-
-  final double height;
-  final double padding;
-
-  TodoDimensions({required this.height, required this.padding});
-
-  factory TodoDimensions.fromScreenSize(Size size, TodoCount todoCount) {
-    return TodoDimensions(
-        height: calculateTodoHeight(size, todoCount),
-        padding: calculateTodoPadding(size, todoCount));
-  }
-}
-
-class Boomerang extends StatelessWidget {
-  static const double svgWidth = 35;
-  static const double svgHeight = 70;
-  static const double halfSvgWidth = svgWidth / 2;
-  static const double halfSvgHeight = svgHeight / 2;
-
-  final TodoDay day;
-  final Size windowSize;
-  final double edgePadding;
-  final VoidCallback onTap;
-
-  const Boomerang(
-      {super.key,
-      required this.day,
-      required this.windowSize,
-      required this.edgePadding,
-      required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final positionedFromTop = windowSize.height / 2 - halfSvgHeight;
-    final positionedFromEdge = edgePadding / 2 - halfSvgWidth;
-    final svg = GestureDetector(
-      onTap: onTap,
-      child: SvgPicture.asset("assets/boomerang.svg",
-          height: svgHeight,
-          width: svgWidth,
-          alignment: Alignment.center,
-          color: Colors.black,
-          fit: BoxFit.contain),
-    );
-    switch (day) {
-      case TodoDay.today:
-        return Positioned(
-          top: positionedFromTop,
-          right: positionedFromEdge,
-          child: svg,
-        );
-      case TodoDay.tomorrow:
-        return Positioned(
-          top: positionedFromTop,
-          left: positionedFromEdge,
-          child: svg,
-        );
+        return 1 / 10; // 1 / 5 todos + 3 padding + 1 header + 1 footer
     }
   }
 }
 
-class TodoList extends StatelessWidget {
-  final TodoDay day;
+class TimeBlockScreen extends StatelessWidget {
+  final Day day;
   final TodoCount todoCount;
-  final TodoDimensions todoDimensions;
+  final TodaiDimensions dimensions;
 
-  const TodoList(
+  const TimeBlockScreen(
       {super.key,
       required this.day,
       required this.todoCount,
-      required this.todoDimensions});
+      required this.dimensions});
 
   @override
   Widget build(BuildContext context) {
@@ -253,73 +173,75 @@ class TodoList extends StatelessWidget {
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          DayHeader(day: day, todoDimensions: todoDimensions),
+          TimeBlockHeader(day: day, dimensions: dimensions),
           ...todos
-              .map((label) => TodoBox(
+              .map((label) => TimeBlockBox(
                   selected: 0,
                   label: label,
-                  height: todoDimensions.height,
+                  height: dimensions.blockHeight,
                   placeholder: false))
               .toList(),
+          SizedBox(
+            height: dimensions.blockHeight / 2,
+            child: Container(
+              color: Colors.transparent,
+            ),
+          ),
         ]);
   }
 }
 
-class DayHeader extends StatelessWidget {
+class TimeBlockHeader extends StatelessWidget {
   static const labelStyle = TextStyle(fontSize: 46);
 
-  final TodoDay day;
-  final TodoDimensions todoDimensions;
+  final Day day;
+  final TodaiDimensions dimensions;
 
-  const DayHeader({super.key, required this.day, required this.todoDimensions});
+  const TimeBlockHeader(
+      {super.key, required this.day, required this.dimensions});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: todoDimensions.height,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Spacer(),
-          Padding(
-            padding: EdgeInsets.only(
-                left: todoDimensions.padding, bottom: todoDimensions.padding),
-            child: Text(day.label(), style: labelStyle),
-          ),
-          Container(
-            constraints: const BoxConstraints.expand(height: 3),
-            color: Colors.black,
-          )
-        ],
+    // final lineHeight = dimensions.blockHeight;
+    const double lineHeight = 0;
+    return Container(
+      color: Colors.transparent,
+      child: SizedBox(
+        height: dimensions.blockHeight,
+        child: Stack(
+          children: [
+            Positioned(
+                left: 0,
+                right: 0,
+                top: dimensions.blockHeight - lineHeight,
+                child: Container(height: lineHeight, color: Colors.black)),
+            Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.only(left: dimensions.edgePadding),
+                  child: Container(
+                    color: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 4, horizontal: 8),
+                      child: Text(day.label(), style: labelStyle),
+                    ),
+                  ),
+                )),
+          ],
+        ),
       ),
     );
   }
 }
 
-enum TodoDay { today, tomorrow }
-
-extension TodoDayFns on TodoDay {
-  String label() {
-    switch (this) {
-      case TodoDay.today:
-        return 'Today';
-      case TodoDay.tomorrow:
-        return 'Tomorrow';
-    }
-  }
-
-  TodoDay other() {
-    return this == TodoDay.tomorrow ? TodoDay.today : TodoDay.tomorrow;
-  }
-}
-
-class TodoBox extends StatelessWidget {
+class TimeBlockBox extends StatelessWidget {
   final int selected;
   final String label;
   final bool placeholder;
   final double height;
 
-  const TodoBox(
+  const TimeBlockBox(
       {super.key,
       required this.height,
       required this.selected,
