@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'boomerang.dart';
 import 'day.dart';
 import 'dimensions.dart';
 import 'time_blocks/count.dart';
-import 'time_blocks/group.dart';
+import 'time_blocks/ui.dart';
 
 void main() {
   runApp(const TodaiApp());
@@ -29,19 +28,19 @@ class ResponsiveTodaiScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const todoCount = BlockCount.four;
+    const blockCount = BlockCount.four;
     final mediaQuery = MediaQuery.of(context);
-    final dimensions = TodaiDimensions.fromMediaQuery(mediaQuery, todoCount);
-    return TodaiScreen(todoCount: todoCount, dimensions: dimensions);
+    final dimensions = TodaiDimensions.fromMediaQuery(mediaQuery, blockCount);
+    return TodaiScreen(blockCount: blockCount, dimensions: dimensions);
   }
 }
 
 class TodaiScreen extends StatefulWidget {
-  final BlockCount todoCount;
+  final BlockCount blockCount;
   final TodaiDimensions dimensions;
 
   const TodaiScreen(
-      {super.key, required this.todoCount, required this.dimensions});
+      {super.key, required this.blockCount, required this.dimensions});
 
   @override
   State<TodaiScreen> createState() => _TodaiScreenState();
@@ -67,37 +66,10 @@ class _TodaiScreenState extends State<TodaiScreen> {
         padding: widget.dimensions.devicePadding,
         child: Container(
           color: Colors.white,
-          child: Stack(
-            children: [
-              Positioned(
-                  top: 0,
-                  left: calcPositionFromLeft(),
-                  bottom: 0,
-                  right: calcPositionFromRight(),
-                  child: TimeBlockScreen(
-                      day: day,
-                      blockCount: widget.todoCount,
-                      dimensions: widget.dimensions)),
-              Boomerang(
-                  day: day,
-                  dimensions: widget.dimensions,
-                  onTap: () => setState(() => day = day.other())),
-            ],
-          ),
+          child: TimeBlocksUi(
+              blockCount: widget.blockCount, dimensions: widget.dimensions),
         ),
       ),
     );
-  }
-
-  double calcPositionFromRight() {
-    return day == Day.today
-        ? widget.dimensions.gutterWidth
-        : widget.dimensions.edgePadding;
-  }
-
-  double calcPositionFromLeft() {
-    return day == Day.today
-        ? widget.dimensions.edgePadding
-        : widget.dimensions.gutterWidth;
   }
 }
