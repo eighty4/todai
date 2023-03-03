@@ -1,14 +1,14 @@
-enum BlockCount {
+enum TimeBlockCount {
   four,
   five;
 }
 
-extension ToIntegerFn on BlockCount {
+extension ToIntegerFn on TimeBlockCount {
   int toInt() {
     switch (this) {
-      case BlockCount.four:
+      case TimeBlockCount.four:
         return 4;
-      case BlockCount.five:
+      case TimeBlockCount.five:
         return 5;
     }
   }

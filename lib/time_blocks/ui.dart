@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:todai/day.dart';
-import 'package:todai/dimensions.dart';
-import 'package:todai/time_blocks/count.dart';
-import 'group.dart';
+import '../day.dart';
+import '../dimensions.dart';
+import 'count.dart';
+import 'stack.dart';
 
 class TimeBlocksUi extends StatelessWidget {
   final TodaiDimensions dimensions;
-  final BlockCount blockCount;
+  final TimeBlockCount blockCount;
 
   const TimeBlocksUi(
       {Key? key, required this.blockCount, required this.dimensions})
@@ -21,8 +21,11 @@ class TimeBlocksUi extends StatelessWidget {
           top: 0,
           left: calcPositionFromLeft(Day.today),
           right: calcPositionFromRight(Day.today),
-          child: TimeBlockGroup(
-              blockCount: blockCount, day: Day.today, dimensions: dimensions),
+          child: TimeBlockStack(
+              blockCount: TimeBlockCount.four,
+              dimensions: dimensions,
+              editingStripes: const [],
+              onEditing: (b) {}),
           // Boomerang(
           //     day: day,
           //     dimensions: widget.dimensions,

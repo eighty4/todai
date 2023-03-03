@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'day.dart';
 import 'dimensions.dart';
 import 'time_blocks/count.dart';
-import 'time_blocks/ui.dart';
+import 'time_blocks/stack.dart';
 
 void main() {
   runApp(const TodaiApp());
@@ -28,7 +27,7 @@ class ResponsiveTodaiScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const blockCount = BlockCount.four;
+    const blockCount = TimeBlockCount.four;
     final mediaQuery = MediaQuery.of(context);
     final dimensions = TodaiDimensions.fromMediaQuery(mediaQuery, blockCount);
     return TodaiScreen(blockCount: blockCount, dimensions: dimensions);
@@ -36,7 +35,7 @@ class ResponsiveTodaiScreen extends StatelessWidget {
 }
 
 class TodaiScreen extends StatefulWidget {
-  final BlockCount blockCount;
+  final TimeBlockCount blockCount;
   final TodaiDimensions dimensions;
 
   const TodaiScreen(
@@ -46,30 +45,66 @@ class TodaiScreen extends StatefulWidget {
   State<TodaiScreen> createState() => _TodaiScreenState();
 }
 
-class _TodaiScreenState extends State<TodaiScreen> {
-  late Day day;
+class _TodaiScreenState extends State<TodaiScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<Color?> _color;
+  bool editing = false;
+  Brightness brightness = Brightness.dark;
 
   @override
   void initState() {
     super.initState();
-    day = Day.today;
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 500));
+    _color = ColorTween(begin: Colors.white, end: Colors.black).animate(
+      CurvedAnimation(
+        curve: const Interval(.4, .6, curve: Curves.ease),
+        parent: _controller,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.white,
-      statusBarIconBrightness: Brightness.dark,
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: brightness,
     ));
     return Scaffold(
-      body: Padding(
-        padding: widget.dimensions.devicePadding,
-        child: Container(
-          color: Colors.white,
-          child: TimeBlocksUi(
-              blockCount: widget.blockCount, dimensions: widget.dimensions),
+      body: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return Container(color: _color.value, child: child);
+        },
+        child: Padding(
+          padding: widget.dimensions.devicePadding,
+          child: TimeBlockStack(
+              blockCount: TimeBlockCount.four,
+              dimensions: widget.dimensions,
+              editingStripes: const [],
+              onEditing: onEditing),
         ),
       ),
     );
+  }
+
+  onEditing(bool editing) {
+    _controller.animateTo(editing ? 0 : 1);
+    setState(() {
+      this.editing = editing;
+      brightness = editing ? Brightness.dark : Brightness.light;
+    });
+    Future.delayed(const Duration(milliseconds: 250), () {
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 }
