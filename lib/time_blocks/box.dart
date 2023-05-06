@@ -2,11 +2,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'event.dart';
 
+typedef TimeBlockCallback = void Function(int);
+
 class TimeBlockBox extends StatefulWidget {
   static const double blockHeight = 80;
   static const double marginHeight = 20;
   static const double minimizedHeight = 20;
   final int index;
+  final TimeBlockCallback onEdit;
   final Stream<TimeBlockEvent> stream;
   final double spaceAbove;
   final double spaceAboveEditing;
@@ -14,6 +17,7 @@ class TimeBlockBox extends StatefulWidget {
   const TimeBlockBox(
       {Key? key,
       required this.index,
+      required this.onEdit,
       required this.stream,
       required this.spaceAbove,
       required this.spaceAboveEditing})
@@ -142,10 +146,16 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
         ),
       );
     }
+    VoidCallback? onTap;
+    if (mode == TimeBlockBoxDisplayMode.display) {
+      onTap = () => widget.onEdit(widget.index);
+    }
     return Stack(
       children: [
         AnimatedBuilder(
-            animation: _editingC, builder: _buildAnimation, child: box)
+            animation: _editingC,
+            builder: _buildAnimation,
+            child: GestureDetector(onTap: onTap, child: box))
       ],
     );
   }

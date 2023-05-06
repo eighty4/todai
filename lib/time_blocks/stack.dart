@@ -71,45 +71,15 @@ class _TimeBlockStackState extends State<TimeBlockStack>
           ...List.generate(widget.blockCount.toInt(), (index) {
             return TimeBlockBox(
                 index: index,
+                onEdit: startEditing,
                 spaceAbove: widget.dimensions.spaceAboveBlocks,
                 spaceAboveEditing: widget.dimensions.spaceAboveBlocksEditing,
                 stream: _controller.stream);
           }),
           ...widget.editingStripes,
-          buildMenu(),
         ]),
       ),
     );
-  }
-
-  Positioned buildMenu() {
-    return Positioned(
-        bottom: 20,
-        left: 0,
-        right: 0,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: List.generate(widget.blockCount.toInt() + 1, (index) {
-            return SizedBox(
-              width: 50,
-              height: 50,
-              child: OutlinedButton(
-                  child: Text(index == widget.blockCount.toInt()
-                      ? 'X'
-                      : (index + 1).toString()),
-                  onLongPress: () => dispatch(index, longPress: true),
-                  onPressed: () => dispatch(index, longPress: false)),
-            );
-          }),
-        ));
-  }
-
-  void dispatch(int index, {required bool longPress}) {
-    if (index == widget.blockCount.toInt()) {
-      closeEditing();
-    } else {
-      startEditing(index);
-    }
   }
 
   void startEditing(int index) {
