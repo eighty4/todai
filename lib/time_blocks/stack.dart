@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../dimensions.dart';
 import 'box.dart';
+import 'controller.dart';
 import 'count.dart';
-import 'event.dart';
 import 'stripe.dart';
 
 class TimeBlockStack extends StatefulWidget {
@@ -33,8 +33,7 @@ class TimeBlockStack extends StatefulWidget {
 
 class _TimeBlockStackState extends State<TimeBlockStack>
     with SingleTickerProviderStateMixin {
-  final StreamController<TimeBlockEvent> _controller =
-      StreamController.broadcast();
+  final TheTimeBlockController _controller = TheTimeBlockController();
   late final AnimationController _editingAnimationController;
   late final StreamSubscription<TimeBlockEvent> _subscription;
 
@@ -62,16 +61,14 @@ class _TimeBlockStackState extends State<TimeBlockStack>
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        closeEditing();
-      },
+      onTap: blurEditing,
       child: Container(
         color: Colors.transparent,
         child: Stack(children: [
           ...List.generate(widget.blockCount.toInt(), (index) {
             return TimeBlockBox(
                 index: index,
-                onEdit: startEditing,
+                onEdit: focusEditing,
                 spaceAbove: widget.dimensions.spaceAboveBlocks,
                 spaceAboveEditing: widget.dimensions.spaceAboveBlocksEditing,
                 stream: _controller.stream);
@@ -82,12 +79,12 @@ class _TimeBlockStackState extends State<TimeBlockStack>
     );
   }
 
-  void startEditing(int index) {
-    _controller.add(TimeBlockEvent(display: true, editing: index));
+  void focusEditing(int index) {
+    _controller.focusEditing(index);
   }
 
-  void closeEditing() {
-    _controller.add(TimeBlockEvent.initialState);
+  void blurEditing() {
+    _controller.blurEditing();
   }
 
   List<AnimatedEditingStripe> buildAnimatedEditingStripes() {

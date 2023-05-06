@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'event.dart';
+import 'controller.dart';
 
 typedef TimeBlockCallback = void Function(int);
 
@@ -146,10 +146,8 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
         ),
       );
     }
-    VoidCallback? onTap;
-    if (mode == TimeBlockBoxDisplayMode.display) {
-      onTap = () => widget.onEdit(widget.index);
-    }
+    final VoidCallback? onTap =
+        mode == TimeBlockBoxDisplayMode.display ? onEdit : null;
     return Stack(
       children: [
         AnimatedBuilder(
@@ -158,6 +156,10 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
             child: GestureDetector(onTap: onTap, child: box))
       ],
     );
+  }
+
+  void onEdit() {
+    widget.onEdit(widget.index);
   }
 
   Widget _buildAnimation(BuildContext context, Widget? child) {
