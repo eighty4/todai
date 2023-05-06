@@ -31,7 +31,6 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
   late AnimationController _displayC;
   late StreamSubscription<TimeBlockEvent> _subscription;
   TimeBlockBoxDisplayMode mode = TimeBlockBoxDisplayMode.display;
-  TimeBlockEvent event = TimeBlockEvent.initialState;
 
   late Animation<Color?> _color;
   late Animation<double> _height;
@@ -45,8 +44,8 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
     _displayC = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
     _subscription = widget.stream.listen(_handleEvent);
-    _initHeightAnimation(event);
-    _initTopAnimation(event);
+    _initHeightAnimation(TimeBlockEvent.initialState);
+    _initTopAnimation(TimeBlockEvent.initialState);
     _color = ColorTween(begin: Colors.black, end: Colors.white).animate(
       CurvedAnimation(
         parent: _editingC,
