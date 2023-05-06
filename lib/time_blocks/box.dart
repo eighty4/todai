@@ -132,7 +132,7 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
           textAlign: TextAlign.center,
           decoration: const InputDecoration(border: InputBorder.none),
           style: const TextStyle(
-              fontSize: 24, color: Color.fromARGB(255, 255, 255, 255)),
+              fontSize: 24, color: Color.fromARGB(255, 0, 0, 0)),
           onEditingComplete: () {
             FocusScope.of(context).unfocus();
           },
