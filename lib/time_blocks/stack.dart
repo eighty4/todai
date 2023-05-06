@@ -61,17 +61,25 @@ class _TimeBlockStackState extends State<TimeBlockStack>
 
   @override
   Widget build(BuildContext context) {
-    return Stack(children: [
-      ...List.generate(widget.blockCount.toInt(), (index) {
-        return TimeBlockBox(
-            index: index,
-            spaceAbove: widget.dimensions.spaceAboveBlocks,
-            spaceAboveEditing: widget.dimensions.spaceAboveBlocksEditing,
-            stream: _controller.stream);
-      }),
-      ...widget.editingStripes,
-      buildMenu(),
-    ]);
+    return GestureDetector(
+      onTap: () {
+        closeEditing();
+      },
+      child: Container(
+        color: Colors.transparent,
+        child: Stack(children: [
+          ...List.generate(widget.blockCount.toInt(), (index) {
+            return TimeBlockBox(
+                index: index,
+                spaceAbove: widget.dimensions.spaceAboveBlocks,
+                spaceAboveEditing: widget.dimensions.spaceAboveBlocksEditing,
+                stream: _controller.stream);
+          }),
+          ...widget.editingStripes,
+          buildMenu(),
+        ]),
+      ),
+    );
   }
 
   Positioned buildMenu() {
@@ -97,13 +105,19 @@ class _TimeBlockStackState extends State<TimeBlockStack>
   }
 
   void dispatch(int index, {required bool longPress}) {
-    late TimeBlockEvent event;
     if (index == widget.blockCount.toInt()) {
-      event = TimeBlockEvent.initialState;
+      closeEditing();
     } else {
-      event = TimeBlockEvent(display: true, editing: index);
+      startEditing(index);
     }
-    _controller.add(event);
+  }
+
+  void startEditing(int index) {
+    _controller.add(TimeBlockEvent(display: true, editing: index));
+  }
+
+  void closeEditing() {
+    _controller.add(TimeBlockEvent.initialState);
   }
 
   List<AnimatedEditingStripe> buildAnimatedEditingStripes() {
