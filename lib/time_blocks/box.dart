@@ -8,7 +8,16 @@ class TimeBlockBox extends StatefulWidget {
   static const double blockHeight = 80;
   static const double marginHeight = 20;
   static const double minimizedHeight = 20;
-  final int index;
+  static const TextStyle placeholderTextStyle = TextStyle(
+      fontSize: 22,
+      color: Color.fromARGB(204, 255, 255, 255),
+      fontStyle: FontStyle.italic);
+  static const TextStyle textStyle =
+      TextStyle(fontSize: 24, color: Color.fromARGB(255, 255, 255, 255));
+  static const TextStyle invertTextStyle =
+      TextStyle(fontSize: 24, color: Color.fromARGB(255, 0, 0, 0));
+
+  final TimeBlock timeBlock;
   final VoidCallback onBlur;
   final TimeBlockCallback onEdit;
   final Stream<TimeBlockEvent> stream;
@@ -17,7 +26,7 @@ class TimeBlockBox extends StatefulWidget {
 
   const TimeBlockBox(
       {Key? key,
-      required this.index,
+      required this.timeBlock,
       required this.onBlur,
       required this.onEdit,
       required this.stream,
@@ -61,7 +70,7 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
   }
 
   _handleEvent(TimeBlockEvent event) {
-    if (event.editing == widget.index) {
+    if (event.editing == widget.timeBlock.index) {
       setState(() => mode = TimeBlockBoxDisplayMode.editFocus);
       _initTopAnimation(event);
       _initHeightAnimation(event);
@@ -79,21 +88,22 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
 
   _initTopAnimation(TimeBlockEvent event) {
     final double begin = widget.spaceAbove +
-        ((TimeBlockBox.blockHeight + TimeBlockBox.marginHeight) * widget.index);
+        ((TimeBlockBox.blockHeight + TimeBlockBox.marginHeight) *
+            widget.timeBlock.index);
     late final double end;
     if (event.editing == null) {
       end = 0;
-    } else if (widget.index <= event.editing!) {
+    } else if (widget.timeBlock.index <= event.editing!) {
       end = widget.spaceAboveEditing +
           ((TimeBlockBox.minimizedHeight + TimeBlockBox.marginHeight) *
-              widget.index);
+              widget.timeBlock.index);
     } else {
       end = widget.spaceAboveEditing +
           TimeBlockBox.blockHeight +
-          (TimeBlockBox.minimizedHeight * (widget.index - 1)) +
-          (TimeBlockBox.marginHeight * widget.index);
+          (TimeBlockBox.minimizedHeight * (widget.timeBlock.index - 1)) +
+          (TimeBlockBox.marginHeight * widget.timeBlock.index);
     }
-    final double iStart = .1 * widget.index;
+    final double iStart = .1 * widget.timeBlock.index;
     final double iEnd = iStart + .6;
     _top = Tween<double>(begin: begin, end: end).animate(
       CurvedAnimation(
@@ -104,7 +114,7 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
   }
 
   _initHeightAnimation(TimeBlockEvent event) {
-    final double index = widget.index.toDouble();
+    final double index = widget.timeBlock.index.toDouble();
     final double iStart = .1 * index;
     final double iEnd = iStart + .6;
     final end = mode == TimeBlockBoxDisplayMode.editFocus
@@ -130,15 +140,23 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
   Widget build(BuildContext context) {
     late final Widget box;
     if (mode != TimeBlockBoxDisplayMode.editFocus) {
-      box = Container(color: Colors.transparent);
+      box = Container(
+        color: Colors.transparent,
+        child: Center(
+            child: Text(
+          widget.timeBlock.text,
+          style: widget.timeBlock.placeholder
+              ? TimeBlockBox.placeholderTextStyle
+              : TimeBlockBox.textStyle,
+        )),
+      );
     } else {
       box = Center(
         child: TextField(
           autofocus: true,
           textAlign: TextAlign.center,
           decoration: const InputDecoration(border: InputBorder.none),
-          style: const TextStyle(
-              fontSize: 24, color: Color.fromARGB(255, 0, 0, 0)),
+          style: TimeBlockBox.invertTextStyle,
           onEditingComplete: () {
             FocusScope.of(context).unfocus();
           },
@@ -166,7 +184,7 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
   }
 
   void onEdit() {
-    widget.onEdit(widget.index);
+    widget.onEdit(widget.timeBlock.index);
   }
 
   Widget _buildAnimation(BuildContext context, Widget? child) {
