@@ -68,6 +68,7 @@ class _TimeBlockStackState extends State<TimeBlockStack>
           ...List.generate(widget.blockCount.toInt(), (index) {
             return TimeBlockBox(
                 index: index,
+                onBlur: blurEditing,
                 onEdit: focusEditing,
                 spaceAbove: widget.dimensions.spaceAboveBlocks,
                 spaceAboveEditing: widget.dimensions.spaceAboveBlocksEditing,

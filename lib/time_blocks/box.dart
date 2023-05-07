@@ -9,6 +9,7 @@ class TimeBlockBox extends StatefulWidget {
   static const double marginHeight = 20;
   static const double minimizedHeight = 20;
   final int index;
+  final VoidCallback onBlur;
   final TimeBlockCallback onEdit;
   final Stream<TimeBlockEvent> stream;
   final double spaceAbove;
@@ -17,6 +18,7 @@ class TimeBlockBox extends StatefulWidget {
   const TimeBlockBox(
       {Key? key,
       required this.index,
+      required this.onBlur,
       required this.onEdit,
       required this.stream,
       required this.spaceAbove,
@@ -140,6 +142,7 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
           onEditingComplete: () {
             FocusScope.of(context).unfocus();
           },
+          onSubmitted: onSubmit,
           onTapOutside: (PointerDownEvent e) {
             FocusScope.of(context).unfocus();
           },
@@ -156,6 +159,10 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
             child: GestureDetector(onTap: onTap, child: box))
       ],
     );
+  }
+
+  void onSubmit(String s) {
+    widget.onBlur();
   }
 
   void onEdit() {
