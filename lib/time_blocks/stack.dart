@@ -14,7 +14,6 @@ class TimeBlockStack extends StatefulWidget {
       (TimeBlockBox.minimizedHeight * 3);
   final TimeBlockCount blockCount;
   final TodaiDimensions dimensions;
-  final List<AnimatedEditingStripe> editingStripes;
 
   // todo remove callback coupling ColorInversion and TimeBlockStack
   final void Function(bool) onEditing;
@@ -23,7 +22,6 @@ class TimeBlockStack extends StatefulWidget {
       {Key? key,
       required this.blockCount,
       required this.dimensions,
-      required this.editingStripes,
       required this.onEditing})
       : super(key: key);
 
@@ -74,7 +72,8 @@ class _TimeBlockStackState extends State<TimeBlockStack>
                 spaceAboveEditing: widget.dimensions.spaceAboveBlocksEditing,
                 stream: _controller.stream);
           }),
-          ...widget.editingStripes,
+          AnimatedEditingStripes(
+              dimensions: widget.dimensions, stream: _controller.stream),
         ]),
       ),
     );
@@ -86,22 +85,5 @@ class _TimeBlockStackState extends State<TimeBlockStack>
 
   void blurEditing() {
     _controller.blurEditing();
-  }
-
-  List<AnimatedEditingStripe> buildAnimatedEditingStripes() {
-    List<AnimatedEditingStripe> stripes = [];
-    final spaceBelowEditing = widget.dimensions.screenSize.height -
-        TimeBlockStack.blocksHeightEditing -
-        widget.dimensions.spaceAboveBlocksEditing;
-    int stripesBelow = (spaceBelowEditing /
-            (TimeBlockBox.marginHeight + TimeBlockBox.minimizedHeight))
-        .floor();
-    for (int i = 0; i < stripesBelow; i++) {
-      // stripes.add(AnimatedEditingStripe(
-      //     interval: const Interval(.6, .7, curve: Curves.ease),
-      //     top: 500,
-      //     width: size.width));
-    }
-    return stripes;
   }
 }

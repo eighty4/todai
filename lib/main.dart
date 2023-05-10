@@ -88,7 +88,6 @@ class _TodaiScreenState extends State<TodaiScreen>
           child: TimeBlockStack(
               blockCount: TimeBlockCount.four,
               dimensions: widget.dimensions,
-              editingStripes: const [],
               onEditing: onEditing),
         ),
       ),
