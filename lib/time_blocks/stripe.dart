@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:todai/dimensions.dart';
 import 'package:todai/time_blocks/controller.dart';
@@ -27,9 +28,12 @@ class _AnimatedEditingStripesState extends State<AnimatedEditingStripes>
     super.initState();
     _controller = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 1000));
-
-    const iS = .5;
-    const iE = .6;
+    const intervalStart = .3;
+    const intervalStep = .05;
+    const intervalEnd = .6;
+    intervalFn(int i) => Interval(min(1, intervalStart + (i * intervalStep)),
+        min(1, intervalEnd + (i * intervalStep)),
+        curve: Curves.easeInOutQuad);
     final above = (widget.dimensions.spaceAboveBlocksEditing / 40).floor();
     for (int i = 1; i <= above; i++) {
       final top = widget.dimensions.spaceAboveBlocksEditing - i * 40;
@@ -38,7 +42,7 @@ class _AnimatedEditingStripesState extends State<AnimatedEditingStripes>
               .animate(
         CurvedAnimation(
           parent: _controller,
-          curve: Interval(iS + (i * .025), iE + (i * .025), curve: Curves.ease),
+          curve: intervalFn(i),
         ),
       );
       _stripes[top] = animation;
@@ -56,7 +60,7 @@ class _AnimatedEditingStripesState extends State<AnimatedEditingStripes>
               .animate(
         CurvedAnimation(
           parent: _controller,
-          curve: Interval(iS + (i * .025), iE + (i * .025), curve: Curves.ease),
+          curve: intervalFn(i),
         ),
       );
       _stripes[top] = animation;
