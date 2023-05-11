@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:todai/dimensions.dart';
 import 'controller.dart';
 
 typedef TimeBlockCallback = void Function(int);
@@ -17,21 +18,19 @@ class TimeBlockBox extends StatefulWidget {
   static const TextStyle invertTextStyle =
       TextStyle(fontSize: 24, color: Color.fromARGB(255, 0, 0, 0));
 
+  final TodaiDimensions dimensions;
   final TimeBlock timeBlock;
   final VoidCallback onBlur;
   final TimeBlockCallback onEdit;
   final Stream<TimeBlockEvent> stream;
-  final double spaceAbove;
-  final double spaceAboveEditing;
 
   const TimeBlockBox(
       {Key? key,
+      required this.dimensions,
       required this.timeBlock,
       required this.onBlur,
       required this.onEdit,
-      required this.stream,
-      required this.spaceAbove,
-      required this.spaceAboveEditing})
+      required this.stream})
       : super(key: key);
 
   @override
@@ -87,18 +86,18 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
   }
 
   _initTopAnimation(TimeBlockEvent event) {
-    final double begin = widget.spaceAbove +
+    final double begin = widget.dimensions.spaceAboveBlocks +
         ((TimeBlockBox.blockHeight + TimeBlockBox.marginHeight) *
             widget.timeBlock.index);
     late final double end;
     if (event.editing == null) {
       end = 0;
     } else if (widget.timeBlock.index <= event.editing!) {
-      end = widget.spaceAboveEditing +
+      end = widget.dimensions.spaceAboveBlocksEditing +
           ((TimeBlockBox.minimizedHeight + TimeBlockBox.marginHeight) *
               widget.timeBlock.index);
     } else {
-      end = widget.spaceAboveEditing +
+      end = widget.dimensions.spaceAboveBlocksEditing +
           TimeBlockBox.blockHeight +
           (TimeBlockBox.minimizedHeight * (widget.timeBlock.index - 1)) +
           (TimeBlockBox.marginHeight * widget.timeBlock.index);

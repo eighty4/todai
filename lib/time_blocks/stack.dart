@@ -66,11 +66,10 @@ class _TimeBlockStackState extends State<TimeBlockStack>
           // ...visualGuide(),
           ...List.generate(widget.blockCount.toInt(), (index) {
             return TimeBlockBox(
+                dimensions: widget.dimensions,
                 timeBlock: _controller.timeBlock(index),
                 onBlur: blurEditing,
                 onEdit: focusEditing,
-                spaceAbove: widget.dimensions.spaceAboveBlocks,
-                spaceAboveEditing: widget.dimensions.spaceAboveBlocksEditing,
                 stream: _controller.stream);
           }),
           AnimatedEditingStripes(
