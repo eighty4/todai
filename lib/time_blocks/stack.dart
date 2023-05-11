@@ -63,6 +63,7 @@ class _TimeBlockStackState extends State<TimeBlockStack>
       child: Container(
         color: Colors.transparent,
         child: Stack(children: [
+          // ...visualGuide(),
           ...List.generate(widget.blockCount.toInt(), (index) {
             return TimeBlockBox(
                 timeBlock: _controller.timeBlock(index),
@@ -85,5 +86,28 @@ class _TimeBlockStackState extends State<TimeBlockStack>
 
   void blurEditing() {
     _controller.blurEditing();
+  }
+
+  List<Widget> visualGuide() {
+    const even = Colors.red;
+    const odd = Colors.pink;
+    return [
+      ...(List.generate(
+          5,
+          (index) => Positioned(
+              top: index * 50,
+              left: 0,
+              right: 0,
+              child:
+                  Container(color: index % 2 == 0 ? even : odd, height: 50)))),
+      ...(List.generate(
+          5,
+          (index) => Positioned(
+              bottom: index * 50,
+              left: 0,
+              right: 0,
+              child:
+                  Container(color: index % 2 == 0 ? even : odd, height: 50)))),
+    ];
   }
 }
