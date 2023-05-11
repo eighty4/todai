@@ -86,23 +86,25 @@ class _TimeBlockStackState extends State<TimeBlockStack>
   List<Widget> visualGuide() {
     const even = Colors.red;
     const odd = Colors.pink;
+    const height = 50.0;
+    final count = (widget.dimensions.screenSize.height / height / 2).floor();
     return [
       ...(List.generate(
-          5,
+          count,
           (index) => Positioned(
-              top: index * 50,
+              top: index * height,
               left: 0,
               right: 0,
-              child:
-                  Container(color: index % 2 == 0 ? even : odd, height: 50)))),
+              child: Container(
+                  color: index % 2 == 0 ? even : odd, height: height)))),
       ...(List.generate(
-          5,
+          count,
           (index) => Positioned(
-              bottom: index * 50,
+              bottom: index * height,
               left: 0,
               right: 0,
-              child:
-                  Container(color: index % 2 == 0 ? even : odd, height: 50)))),
+              child: Container(
+                  color: index % 2 == 0 ? even : odd, height: height)))),
     ];
   }
 }
