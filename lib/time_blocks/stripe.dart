@@ -50,7 +50,7 @@ class _AnimatedEditingStripesState extends State<AnimatedEditingStripes>
     final spaceBelowOffset = (TimeBlockBox.marginHeight * 3) +
         (TimeBlockBox.minimizedHeight * 3) +
         widget.dimensions.spaceAboveBlocksEditing +
-        TimeBlockBox.blockHeight;
+        widget.dimensions.blockHeight;
     final below =
         ((widget.dimensions.screenSize.height - spaceBelowOffset) / 40).floor();
     for (int i = 1; i <= below; i++) {

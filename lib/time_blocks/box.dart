@@ -6,7 +6,6 @@ import 'controller.dart';
 typedef TimeBlockCallback = void Function(int);
 
 class TimeBlockBox extends StatefulWidget {
-  static const double blockHeight = 80;
   static const double marginHeight = 20;
   static const double minimizedHeight = 20;
   static const TextStyle placeholderTextStyle = TextStyle(
@@ -87,7 +86,7 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
 
   _initTopPosAnimation(TimeBlockEvent event) {
     final double openTopPos = widget.dimensions.spaceAboveBlocks +
-        ((TimeBlockBox.blockHeight + TimeBlockBox.marginHeight) *
+        ((widget.dimensions.blockHeight + TimeBlockBox.marginHeight) *
             widget.timeBlock.index);
     late final double editTopPos;
     if (event.editing == null) {
@@ -98,7 +97,7 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
               widget.timeBlock.index);
     } else {
       editTopPos = widget.dimensions.spaceAboveBlocksEditing +
-          TimeBlockBox.blockHeight +
+          widget.dimensions.blockHeight +
           (TimeBlockBox.minimizedHeight * (widget.timeBlock.index - 1)) +
           (TimeBlockBox.marginHeight * widget.timeBlock.index);
     }
@@ -116,10 +115,11 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
     final double intervalStart = .1 * widget.timeBlock.index;
     final double intervalEnd = intervalStart + .6;
     final editHeight = mode == TimeBlockBoxDisplayMode.editFocus
-        ? TimeBlockBox.blockHeight
+        ? widget.dimensions.blockHeight
         : TimeBlockBox.minimizedHeight;
     _height =
-        Tween<double>(begin: TimeBlockBox.blockHeight, end: editHeight).animate(
+        Tween<double>(begin: widget.dimensions.blockHeight, end: editHeight)
+            .animate(
       CurvedAnimation(
         parent: _editingC,
         curve: Interval(intervalStart, intervalEnd, curve: Curves.ease),

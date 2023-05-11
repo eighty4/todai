@@ -1,17 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../dimensions.dart';
+import 'package:todai/dimensions.dart';
 import 'box.dart';
 import 'controller.dart';
 import 'count.dart';
 import 'stripe.dart';
 
 class TimeBlockStack extends StatefulWidget {
-  static const double blocksHeight =
-      (TimeBlockBox.blockHeight * 4) + (TimeBlockBox.marginHeight * 3);
-  static const double blocksHeightEditing = TimeBlockBox.blockHeight +
-      (TimeBlockBox.marginHeight * 3) +
-      (TimeBlockBox.minimizedHeight * 3);
   final TimeBlockCount blockCount;
   final TodaiDimensions dimensions;
 

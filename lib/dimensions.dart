@@ -1,18 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'time_blocks/box.dart';
 import 'time_blocks/count.dart';
-import 'time_blocks/stack.dart';
-
-extension on TimeBlockCount {
-  double screenHeightProportion() {
-    switch (this) {
-      case TimeBlockCount.four:
-        return 1 / 8; // 1 / 4 todos + 2 padding + 1 header + 1 footer
-      case TimeBlockCount.five:
-        return 1 / 10; // 1 / 5 todos + 3 padding + 1 header + 1 footer
-    }
-  }
-}
 
 class TodaiDimensions {
   final double blockHeight;
@@ -42,12 +30,15 @@ class TodaiDimensions {
     final windowHeight = (mediaQuery.size.height -
         mediaQuery.padding.top -
         mediaQuery.padding.bottom);
-    final spaceAboveBlocks =
-        (windowHeight / 2) - (TimeBlockStack.blocksHeight / 2);
+    final double blockHeight = blockCount == TimeBlockCount.four ? 80 : 80;
+    final spaceAboveBlocks = (windowHeight / 2) -
+        (((blockHeight * blockCount.toInt()) +
+                (TimeBlockBox.marginHeight * 3)) /
+            2);
     double spaceAboveBlocksEditing =
         (TimeBlockBox.minimizedHeight + TimeBlockBox.marginHeight) * 2;
     return TodaiDimensions(
-      blockHeight: blockCount.screenHeightProportion() * size.height,
+      blockHeight: blockHeight,
       devicePadding: mediaQuery.padding,
       edgePadding: .08 * size.width,
       gutterWidth: .2 * size.width,
