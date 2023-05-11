@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'count.dart';
 
 class TimeBlock {
   final int index;
@@ -22,7 +23,10 @@ class TimeBlockEvent {
 class TheTimeBlockController {
   final StreamController<TimeBlockEvent> _streamController =
       StreamController.broadcast();
-  final List<TimeBlock> _todos = getRandomTimeBlocks(4);
+  final List<TimeBlock> _todos;
+
+  TheTimeBlockController(TimeBlockCount blockCount)
+      : _todos = getRandomTimeBlocks(blockCount.toInt());
 
   Stream<TimeBlockEvent> get stream => _streamController.stream;
 

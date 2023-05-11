@@ -26,13 +26,14 @@ class TimeBlockStack extends StatefulWidget {
 
 class _TimeBlockStackState extends State<TimeBlockStack>
     with SingleTickerProviderStateMixin {
-  final TheTimeBlockController _controller = TheTimeBlockController();
+  late final TheTimeBlockController _controller;
   late final AnimationController _editingAnimationController;
   late final StreamSubscription<TimeBlockEvent> _subscription;
 
   @override
   void initState() {
     super.initState();
+    _controller = TheTimeBlockController(widget.blockCount);
     _editingAnimationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 1000));
     _subscription = _controller.stream.listen((event) {
