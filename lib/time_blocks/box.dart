@@ -59,7 +59,7 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
         vsync: this, duration: const Duration(milliseconds: 500));
     _subscription = widget.stream.listen(_handleEvent);
     _initHeightAnimation(TimeBlockEvent.initialState);
-    _initTopAnimation(TimeBlockEvent.initialState);
+    _initTopPosAnimation(TimeBlockEvent.initialState);
     _color = ColorTween(begin: Colors.black, end: Colors.white).animate(
       CurvedAnimation(
         parent: _editingC,
@@ -71,12 +71,12 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
   _handleEvent(TimeBlockEvent event) {
     if (event.editing == widget.timeBlock.index) {
       setState(() => mode = TimeBlockBoxDisplayMode.editFocus);
-      _initTopAnimation(event);
+      _initTopPosAnimation(event);
       _initHeightAnimation(event);
       _editingC.animateTo(1);
     } else if (event.editing != null) {
       setState(() => mode = TimeBlockBoxDisplayMode.editBlur);
-      _initTopAnimation(event);
+      _initTopPosAnimation(event);
       _initHeightAnimation(event);
       _editingC.animateTo(1);
     } else {
@@ -85,44 +85,44 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
     }
   }
 
-  _initTopAnimation(TimeBlockEvent event) {
-    final double begin = widget.dimensions.spaceAboveBlocks +
+  _initTopPosAnimation(TimeBlockEvent event) {
+    final double openTopPos = widget.dimensions.spaceAboveBlocks +
         ((TimeBlockBox.blockHeight + TimeBlockBox.marginHeight) *
             widget.timeBlock.index);
-    late final double end;
+    late final double editTopPos;
     if (event.editing == null) {
-      end = 0;
+      editTopPos = 0;
     } else if (widget.timeBlock.index <= event.editing!) {
-      end = widget.dimensions.spaceAboveBlocksEditing +
+      editTopPos = widget.dimensions.spaceAboveBlocksEditing +
           ((TimeBlockBox.minimizedHeight + TimeBlockBox.marginHeight) *
               widget.timeBlock.index);
     } else {
-      end = widget.dimensions.spaceAboveBlocksEditing +
+      editTopPos = widget.dimensions.spaceAboveBlocksEditing +
           TimeBlockBox.blockHeight +
           (TimeBlockBox.minimizedHeight * (widget.timeBlock.index - 1)) +
           (TimeBlockBox.marginHeight * widget.timeBlock.index);
     }
-    final double iStart = .1 * widget.timeBlock.index;
-    final double iEnd = iStart + .6;
-    _top = Tween<double>(begin: begin, end: end).animate(
+    final double intervalStart = .1 * widget.timeBlock.index;
+    final double intervalEnd = intervalStart + .6;
+    _top = Tween<double>(begin: openTopPos, end: editTopPos).animate(
       CurvedAnimation(
         parent: _editingC,
-        curve: Interval(iStart, iEnd, curve: Curves.ease),
+        curve: Interval(intervalStart, intervalEnd, curve: Curves.ease),
       ),
     );
   }
 
   _initHeightAnimation(TimeBlockEvent event) {
-    final double index = widget.timeBlock.index.toDouble();
-    final double iStart = .1 * index;
-    final double iEnd = iStart + .6;
-    final end = mode == TimeBlockBoxDisplayMode.editFocus
+    final double intervalStart = .1 * widget.timeBlock.index;
+    final double intervalEnd = intervalStart + .6;
+    final editHeight = mode == TimeBlockBoxDisplayMode.editFocus
         ? TimeBlockBox.blockHeight
         : TimeBlockBox.minimizedHeight;
-    _height = Tween<double>(begin: TimeBlockBox.blockHeight, end: end).animate(
+    _height =
+        Tween<double>(begin: TimeBlockBox.blockHeight, end: editHeight).animate(
       CurvedAnimation(
         parent: _editingC,
-        curve: Interval(iStart, iEnd, curve: Curves.ease),
+        curve: Interval(intervalStart, intervalEnd, curve: Curves.ease),
       ),
     );
   }
