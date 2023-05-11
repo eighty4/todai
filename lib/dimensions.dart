@@ -39,8 +39,11 @@ class TodaiDimensions {
   factory TodaiDimensions.fromMediaQuery(
       MediaQueryData mediaQuery, TimeBlockCount blockCount) {
     final size = mediaQuery.size;
-    double spaceAboveBlocks =
-        (size.height / 2) - (TimeBlockStack.blocksHeight / 2);
+    final windowHeight = (mediaQuery.size.height -
+        mediaQuery.padding.top -
+        mediaQuery.padding.bottom);
+    final spaceAboveBlocks =
+        (windowHeight / 2) - (TimeBlockStack.blocksHeight / 2);
     double spaceAboveBlocksEditing =
         (TimeBlockBox.minimizedHeight + TimeBlockBox.marginHeight) * 2;
     return TodaiDimensions(
