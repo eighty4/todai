@@ -42,7 +42,7 @@ class TodaiDimensions {
     double spaceAboveBlocks =
         (size.height / 2) - (TimeBlockStack.blocksHeight / 2);
     double spaceAboveBlocksEditing =
-        TimeBlockBox.blockHeight + TimeBlockBox.marginHeight;
+        (TimeBlockBox.minimizedHeight + TimeBlockBox.marginHeight) * 2;
     return TodaiDimensions(
       blockHeight: blockCount.screenHeightProportion() * size.height,
       devicePadding: mediaQuery.padding,
