@@ -86,7 +86,7 @@ class _TodaiScreenState extends State<TodaiScreen>
         child: Padding(
           padding: widget.dimensions.devicePadding,
           child: TimeBlockStack(
-              blockCount: TimeBlockCount.four,
+              blockCount: widget.blockCount,
               dimensions: widget.dimensions,
               onEditing: onEditing),
         ),
