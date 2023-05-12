@@ -28,9 +28,9 @@ class _AnimatedEditingStripesState extends State<AnimatedEditingStripes>
     super.initState();
     _controller = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 1000));
-    const intervalStart = .3;
-    const intervalStep = .05;
-    const intervalEnd = .6;
+    const intervalStart = .2;
+    const intervalStep = .075;
+    const intervalEnd = .5;
     intervalFn(int i) => Interval(min(1, intervalStart + (i * intervalStep)),
         min(1, intervalEnd + (i * intervalStep)),
         curve: Curves.easeInOutQuad);
