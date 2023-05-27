@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:todai/background.dart';
 import 'package:todai/dimensions.dart';
 import 'box.dart';
 import 'controller.dart';
@@ -10,14 +11,8 @@ class TimeBlockStack extends StatefulWidget {
   final TimeBlockCount blockCount;
   final TodaiDimensions dimensions;
 
-  // todo remove callback coupling ColorInversion and TimeBlockStack
-  final void Function(bool) onEditing;
-
   const TimeBlockStack(
-      {Key? key,
-      required this.blockCount,
-      required this.dimensions,
-      required this.onEditing})
+      {Key? key, required this.blockCount, required this.dimensions})
       : super(key: key);
 
   @override
@@ -36,13 +31,17 @@ class _TimeBlockStackState extends State<TimeBlockStack>
     _controller = TheTimeBlockController(widget.blockCount);
     _editingAnimationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 1000));
-    _subscription = _controller.stream.listen((event) {
-      final editing = event.editing == null;
-      if (event.display) {
-        widget.onEditing(editing);
-      }
-      _editingAnimationController.animateTo(editing ? 0 : 1);
-    });
+    _subscription = _controller.stream.listen(onEvent);
+  }
+
+  void onEvent(event) {
+    final editing = event.editing == null;
+    if (event.editing == null) {
+      TodaiBackground.of(context).light();
+    } else {
+      TodaiBackground.of(context).dark();
+    }
+    _editingAnimationController.animateTo(editing ? 0 : 1);
   }
 
   @override
