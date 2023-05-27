@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  flutter-version: 3.10.2
+
+jobs:
+  verified:
+    runs-on: ubuntu-22.04
+    needs:
+      - analyze
+      - build
+      - format
+      - test
+    steps:
+      - run: echo "After all the changes you put me through"
+
+  analyze:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.flutter-version }}
+          channel: 'stable'
+      - name: analyze
+        run: flutter analyze
+
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.flutter-version }}
+          channel: 'stable'
+      - name: test
+        run: flutter test
+
+  format:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.flutter-version }}
+          channel: 'stable'
+      - name: format
+        run: dart format lib test --set-exit-if-changed
+
+  build:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        build-artifact:
+          - 'apk'
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.flutter-version }}
+          channel: 'stable'
+      - name: build ${{ matrix.build-artifact }}
+        run: flutter build ${{ matrix.build-artifact }}
