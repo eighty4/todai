@@ -1,6 +1,8 @@
-# todai
+[![Todai CI](https://img.shields.io/github/actions/workflow/status/eighty4/todai/verify.yml?label=CI&style=flat-square)](https://github.com/eighty4/eighty4/actions/workflows/verify.yml)
 
-a todo app for today
+# Todai
+
+A todo app for today
 
 ## Getting Started
 
