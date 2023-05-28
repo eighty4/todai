@@ -7,6 +7,8 @@ class TodaiDimensions {
   final EdgeInsets devicePadding;
   final double edgePadding;
   final double gutterWidth;
+
+  /// windowSize - devicePadding
   final Size screenSize;
   final Size windowSize;
   final double spaceAboveBlocks;

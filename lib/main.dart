@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todai/background.dart';
+import 'package:todai/splash_screen/splash.dart';
+import 'package:todai/state.dart';
 import 'dimensions.dart';
 import 'time_blocks/count.dart';
 import 'time_blocks/stack.dart';
@@ -25,17 +27,50 @@ class TodaiApp extends StatelessWidget {
   }
 }
 
-class TodaiScreen extends StatelessWidget {
+class TodaiScreen extends StatefulWidget {
   const TodaiScreen({Key? key}) : super(key: key);
 
   @override
+  State<TodaiScreen> createState() => _TodaiScreenState();
+}
+
+class _TodaiScreenState extends State<TodaiScreen> {
+  TimeBlockCount blockCount = TimeBlockCount.four;
+  bool stateLoaded = false;
+  bool introPassed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    TodaiAppState.hasPassedIntro().then((hasPassedIntro) {
+      setState(() {
+        stateLoaded = true;
+        introPassed = hasPassedIntro;
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    const blockCount = TimeBlockCount.four;
+    if (!stateLoaded) {
+      return const Center();
+    }
     final mediaQuery = MediaQuery.of(context);
     final dimensions = TodaiDimensions.fromMediaQuery(mediaQuery, blockCount);
-    return Padding(
-      padding: dimensions.devicePadding,
-      child: TimeBlockStack(blockCount: blockCount, dimensions: dimensions),
-    );
+    if (!introPassed) {
+      return IntroSequence(dimensions: dimensions, onFinished: onIntroFinished);
+    } else {
+      return Padding(
+        padding: dimensions.devicePadding,
+        child: TimeBlockStack(blockCount: blockCount, dimensions: dimensions),
+      );
+    }
+  }
+
+  void onIntroFinished() async {
+    setState(() {
+      introPassed = true;
+    });
+    await TodaiAppState.setPassedIntro();
   }
 }
