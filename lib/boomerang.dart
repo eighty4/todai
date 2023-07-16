@@ -39,7 +39,7 @@ class BoomerangSvgPicture extends StatelessWidget {
           height: height,
           width: width,
           alignment: Alignment.center,
-          color: Colors.black,
+          colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
           fit: BoxFit.contain),
     );
   }
