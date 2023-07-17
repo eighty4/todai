@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:todai/background.dart';
 import 'package:todai/dimensions.dart';
-import 'step1.dart';
+import 'package:todai/splash_screen/step1.dart';
 
 class IntroStep3 extends StatefulWidget {
   final TodaiDimensions dimensions;
@@ -20,9 +20,13 @@ class _IntroStep3State extends State<IntroStep3> {
   @override
   void initState() {
     super.initState();
-    boxes = calculateAnimationWithBug(widget.dimensions);
-    Future.delayed(Duration(milliseconds: (durationMS / 2).floor()), () {
-      TodaiBackground.of(context).dark();
+    boxes = calculateBoxAnimation(widget.dimensions,
+        from: Colors.black, to: Colors.white);
+    Future.delayed(const Duration(milliseconds: 1), () {
+      TodaiBackground.of(context).light();
+    });
+    Future.delayed(const Duration(milliseconds: durationMS), () {
+      widget.onFinished();
     });
   }
 

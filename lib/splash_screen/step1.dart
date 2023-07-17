@@ -6,7 +6,7 @@ import 'package:todai/background.dart';
 import 'package:todai/dimensions.dart';
 import 'package:todai/splash_screen/boxes.dart';
 
-const durationMS = 6000;
+const durationMS = 3000;
 
 class IntroStep1 extends StatefulWidget {
   final TodaiDimensions dimensions;
@@ -25,8 +25,9 @@ class _IntroStep1State extends State<IntroStep1> {
   @override
   void initState() {
     super.initState();
-    boxes = calculateAnimationWithBug(widget.dimensions);
-    Future.delayed(Duration(milliseconds: (durationMS / 2).floor()), () {
+    boxes = calculateBoxAnimation(widget.dimensions,
+        from: Colors.white, to: Colors.black);
+    Future.delayed(const Duration(milliseconds: 1), () {
       TodaiBackground.of(context).dark();
     });
     Future.delayed(const Duration(milliseconds: durationMS), () {
@@ -43,21 +44,19 @@ class _IntroStep1State extends State<IntroStep1> {
   }
 }
 
-List<AnimatedCheckerBox> calculateAnimationWithBug(TodaiDimensions dimensions) {
+List<AnimatedCheckerBox> calculateBoxAnimation(TodaiDimensions dimensions,
+    {required Color from, required Color to}) {
+  const waveLength = .3;
+  const firstWave = .2;
+  const secondWave = .5;
   final boxesGrid = BoxesGrid.forDimensions(dimensions);
   final List<AnimatedCheckerBox> boxes = [];
   for (int x = 0; x < boxesGrid.columns; x++) {
     for (int y = 0; y < boxesGrid.rows; y++) {
-      final waveBegin = (x + y) % 2 == 0 ? .2 : .5;
-      const waveLength = .3;
-      final nth = (y * boxesGrid.columns) + x;
-      late final double offset;
-      if (nth == 0) {
-        offset = 0;
-      } else {
-        offset = waveLength / nth;
-      }
-      final begin = waveBegin + offset;
+      final waveOffset = (x + y) % 2 == 0 ? firstWave : secondWave;
+      final nth = (x * boxesGrid.columns) + (y * boxesGrid.rows);
+      final double checkerOffset = nth == 0 ? 0 : waveLength / nth;
+      final begin = waveOffset + checkerOffset;
       late final double end;
       if (kDebugMode) {
         final calculated = begin + .2;
@@ -69,11 +68,14 @@ List<AnimatedCheckerBox> calculateAnimationWithBug(TodaiDimensions dimensions) {
         end = begin + .2;
       }
       boxes.add(AnimatedCheckerBox(
-          top: boxesGrid.boxSize.height * y,
-          left: boxesGrid.boxSize.width * x,
-          size: boxesGrid.boxSize,
-          begin: begin,
-          end: end));
+        top: boxesGrid.boxSize.height * y,
+        left: boxesGrid.boxSize.width * x,
+        size: boxesGrid.boxSize,
+        intervalBegin: begin,
+        intervalEnd: end,
+        colorFrom: from,
+        colorTo: to,
+      ));
     }
   }
   return boxes;
@@ -126,17 +128,21 @@ class AnimationPath {
 class AnimatedCheckerBox extends StatefulWidget {
   final double top;
   final double left;
-  final double begin;
-  final double end;
+  final double intervalBegin;
+  final double intervalEnd;
   final Size size;
+  final Color colorFrom;
+  final Color colorTo;
 
   const AnimatedCheckerBox(
       {super.key,
       required this.top,
       required this.left,
       required this.size,
-      required this.begin,
-      required this.end});
+      required this.intervalBegin,
+      required this.intervalEnd,
+      required this.colorFrom,
+      required this.colorTo});
 
   @override
   State<StatefulWidget> createState() => AnimatedCheckerBoxState();
@@ -153,10 +159,11 @@ class AnimatedCheckerBoxState extends State<AnimatedCheckerBox>
     _controller = AnimationController(
         vsync: this, duration: const Duration(milliseconds: durationMS));
 
-    _color = ColorTween(begin: Colors.white, end: Colors.black).animate(
+    _color = ColorTween(begin: widget.colorFrom, end: widget.colorTo).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: Interval(widget.begin, widget.end, curve: Curves.ease),
+        curve: Interval(widget.intervalBegin, widget.intervalEnd,
+            curve: Curves.ease),
       ),
     );
 

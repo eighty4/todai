@@ -10,7 +10,8 @@ class BoxesGrid {
   BoxesGrid({required this.boxSize, required this.rows, required this.columns});
 
   factory BoxesGrid.forDimensions(TodaiDimensions dimensions) {
-    const columns = 15;
+    const idealHeight = 26;
+    final columns = (dimensions.screenSize.width / idealHeight).floor();
     final width = dimensions.screenSize.width / columns;
     final rows = ((dimensions.screenSize.height) / width).floor();
     final height = ((dimensions.screenSize.height) / rows).ceilToDouble();

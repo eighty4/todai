@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-
 import 'package:todai/dimensions.dart';
 import 'package:todai/splash_screen/boxes.dart';
 
@@ -24,40 +23,42 @@ class IntroStep2 extends StatefulWidget {
 }
 
 class _IntroStep2State extends State<IntroStep2> {
+  static const duration = Duration(milliseconds: 500);
   int counter = 0;
-  bool renderTappable = false;
+  bool renderBox = false;
+  bool renderButton = false;
+  bool hideTopText = false;
+  bool showBottomText = false;
 
   @override
   void initState() {
     super.initState();
-    queueRender();
-  }
-
-  void queueRender() {
-    Future.delayed(const Duration(seconds: 1), () {
-      setState(() => renderTappable = true);
+    Future.delayed(duration * 1.5, () {
+      setState(() => renderBox = true);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final top = .2 * widget.dimensions.screenSize.height;
-    final left = .125 * widget.dimensions.screenSize.width;
+    final top = .15 * widget.dimensions.screenSize.height;
+    final left = .15 * widget.dimensions.screenSize.width;
     return Padding(
       padding: EdgeInsets.only(top: widget.dimensions.devicePadding.top),
       child: Stack(children: <Widget>[
         Positioned(
           top: top,
           left: left,
-          child: verifiedNotRobot()
-              ? const MultiLineText(text: ["Okay, you *seem* human."])
-              : const MultiLineText(text: ["Let's verify", "you're a human."]),
-        ),
-        if (counter > 0)
-          Positioned(
-            top: top + 84,
-            left: left,
-            child: MultiLineText(
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            AnimatedOpacity(
+              curve: Curves.easeIn,
+              duration: duration,
+              opacity: hideTopText && verifiedNotRobot() ? 0 : 1,
+              child: const MultiLineText(
+                  text: ["Let's verify", "you're a human."]),
+            ),
+            const SizedBox(height: 20),
+            MultiLineText(
               text: List.generate(counter, (i) => verified[i]),
               rowBuilder: (text) => Row(
                 children: [
@@ -68,12 +69,22 @@ class _IntroStep2State extends State<IntroStep2> {
                 ],
               ),
             ),
-          ),
-        if (renderTappable && !verifiedNotRobot()) buildBox(),
-        if (renderTappable && verifiedNotRobot())
-          Positioned(
-              bottom: .15 * widget.dimensions.screenSize.height,
-              left: left,
+            const SizedBox(height: 20),
+            AnimatedOpacity(
+              curve: Curves.easeIn,
+              duration: duration,
+              opacity: showBottomText && verifiedNotRobot() ? 1 : 0,
+              child: const MultiLineText(text: ["Okay, you *seem* human."]),
+            )
+          ]),
+        ),
+        Positioned(
+            bottom: .15 * widget.dimensions.screenSize.height,
+            left: left,
+            child: AnimatedOpacity(
+              curve: Curves.ease,
+              duration: duration * 2,
+              opacity: renderButton && verifiedNotRobot() ? 1 : 0,
               child: GestureDetector(
                   onTap: widget.onFinished,
                   child: Container(
@@ -83,7 +94,9 @@ class _IntroStep2State extends State<IntroStep2> {
                       child: const Center(
                           child: Text('Continue',
                               style: TextStyle(
-                                  color: Colors.white, fontSize: 24)))))),
+                                  color: Colors.white, fontSize: 24))))),
+            )),
+        if (renderBox && !verifiedNotRobot()) buildBox(),
       ]),
     );
   }
@@ -95,10 +108,15 @@ class _IntroStep2State extends State<IntroStep2> {
   onWhacked() {
     setState(() {
       counter++;
-      renderTappable = false;
+      renderBox = false;
     });
-    Future.delayed(const Duration(milliseconds: 500),
-        () => setState(() => renderTappable = true));
+    if (verifiedNotRobot()) {
+      Future.delayed(duration, () => setState(() => hideTopText = true));
+      Future.delayed(duration * 2, () => setState(() => showBottomText = true));
+      Future.delayed(duration * 4, () => setState(() => renderButton = true));
+    } else {
+      Future.delayed(duration, () => setState(() => renderBox = true));
+    }
   }
 
   Widget buildBox() {
@@ -109,8 +127,8 @@ class _IntroStep2State extends State<IntroStep2> {
         Random().nextInt((widget.dimensions.screenSize.width * .7).floor()) +
             (widget.dimensions.screenSize.width * .15);
     return WhackchaBox(
-        top: top.toDouble(),
-        left: left.toDouble(),
+        top: top,
+        left: left,
         size: BoxesGrid.forDimensions(widget.dimensions).boxSize,
         onWhacked: onWhacked);
   }
