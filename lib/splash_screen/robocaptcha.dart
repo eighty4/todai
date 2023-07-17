@@ -11,18 +11,18 @@ const verified = [
   'Blind faith',
 ];
 
-class IntroStep2 extends StatefulWidget {
+class RoboCaptcha extends StatefulWidget {
   final TodaiDimensions dimensions;
   final VoidCallback onFinished;
 
-  const IntroStep2(
+  const RoboCaptcha(
       {super.key, required this.dimensions, required this.onFinished});
 
   @override
-  State<IntroStep2> createState() => _IntroStep2State();
+  State<RoboCaptcha> createState() => _RoboCaptchaState();
 }
 
-class _IntroStep2State extends State<IntroStep2> {
+class _RoboCaptchaState extends State<RoboCaptcha> {
   static const duration = Duration(milliseconds: 500);
   int counter = 0;
   bool renderBox = false;
@@ -86,7 +86,7 @@ class _IntroStep2State extends State<IntroStep2> {
               duration: duration * 2,
               opacity: renderButton && verifiedNotRobot() ? 1 : 0,
               child: GestureDetector(
-                  onTap: widget.onFinished,
+                  onTap: verifiedNotRobot() ? widget.onFinished : null,
                   child: Container(
                       height: 60,
                       width: widget.dimensions.screenSize.width - (left * 2),

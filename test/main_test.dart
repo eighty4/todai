@@ -1,20 +1,18 @@
-// import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todai/main.dart';
-// import 'package:todai/splash_screen/splash.dart';
+import 'package:todai/splash_screen/intro.dart';
 import 'package:todai/time_blocks/stack.dart';
 
 void main() {
-  // todo fails because timers are open
-  // testWidgets('Shows intro', (WidgetTester tester) async {
-  //   SharedPreferences.setMockInitialValues({
-  //     'intro': false,
-  //   });
-  //   await tester.pumpWidget(const TodaiApp());
-  //   await tester.pump(const Duration(milliseconds: 100));
-  //   expect(find.byType(IntroSequence), findsOneWidget);
-  // });
+  testWidgets('Shows intro', (WidgetTester tester) async {
+    SharedPreferences.setMockInitialValues({
+      'intro': false,
+    });
+    await tester.pumpWidget(const TodaiApp());
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byType(IntroSequence), findsOneWidget);
+  });
 
   // todo fails to find GestureDetector in app
   // testWidgets('Traverses intro', (WidgetTester tester) async {
