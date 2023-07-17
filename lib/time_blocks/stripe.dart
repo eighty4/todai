@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:todai/dimensions.dart';
+import 'package:todai/time_blocks/box.dart';
 import 'package:todai/time_blocks/controller.dart';
-import 'box.dart';
 
 class AnimatedEditingStripes extends StatefulWidget {
   final TodaiDimensions dimensions;

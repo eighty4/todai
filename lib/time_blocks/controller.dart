@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
-import 'count.dart';
+
+import 'package:todai/time_blocks/count.dart';
 
 class TimeBlock {
   final int index;

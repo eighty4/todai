@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
-import 'time_blocks/box.dart';
-import 'time_blocks/count.dart';
+import 'package:todai/time_blocks/box.dart';
+import 'package:todai/time_blocks/count.dart';
 
 class TodaiDimensions {
   final double blockHeight;

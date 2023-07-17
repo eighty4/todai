@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'day.dart';
-import 'dimensions.dart';
+import 'package:todai/day.dart';
+import 'package:todai/dimensions.dart';
 
 enum BoomerangDirection { up, right, down, left }
 

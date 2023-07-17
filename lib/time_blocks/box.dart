@@ -1,7 +1,8 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:todai/dimensions.dart';
-import 'controller.dart';
+import 'package:todai/time_blocks/controller.dart';
 
 typedef TimeBlockCallback = void Function(int);
 

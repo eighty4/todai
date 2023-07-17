@@ -1,11 +1,12 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:todai/background.dart';
 import 'package:todai/dimensions.dart';
-import 'box.dart';
-import 'controller.dart';
-import 'count.dart';
-import 'stripe.dart';
+import 'package:todai/time_blocks/box.dart';
+import 'package:todai/time_blocks/controller.dart';
+import 'package:todai/time_blocks/count.dart';
+import 'package:todai/time_blocks/stripe.dart';
 
 class TimeBlockStack extends StatefulWidget {
   final TimeBlockCount blockCount;

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todai/background.dart';
+import 'package:todai/dimensions.dart';
 import 'package:todai/splash_screen/splash.dart';
 import 'package:todai/state.dart';
-import 'dimensions.dart';
-import 'time_blocks/count.dart';
-import 'time_blocks/stack.dart';
+import 'package:todai/time_blocks/count.dart';
+import 'package:todai/time_blocks/stack.dart';
 
 void main() {
   runApp(const TodaiApp());
