@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:todai/dimensions.dart';
-import 'package:todai/time_blocks/controller.dart';
+import 'package:todai/time_blocks/data.dart';
 
 typedef TimeBlockCallback = void Function(int);
 

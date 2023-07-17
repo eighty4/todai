@@ -18,6 +18,10 @@ class TimeBlockState {
 
   final int? editing;
   final bool display;
+
+  bool isEditingActive() {
+    return editing != null;
+  }
 }
 
 const randomLabels = <String>[

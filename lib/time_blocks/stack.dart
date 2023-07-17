@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:todai/background.dart';
 import 'package:todai/dimensions.dart';
 import 'package:todai/time_blocks/box.dart';
-import 'package:todai/time_blocks/controller.dart';
 import 'package:todai/time_blocks/count.dart';
+import 'package:todai/time_blocks/data.dart';
 import 'package:todai/time_blocks/stripe.dart';
 
 class TimeBlockStack extends StatefulWidget {
@@ -20,7 +20,6 @@ class TimeBlockStack extends StatefulWidget {
 
 class _TimeBlockStackState extends State<TimeBlockStack>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _editingAnimationController;
   late final List<TimeBlock> data;
   TimeBlockState state = TimeBlockState.reset;
 
@@ -28,14 +27,6 @@ class _TimeBlockStackState extends State<TimeBlockStack>
   void initState() {
     super.initState();
     data = getRandomTimeBlocks(widget.blockCount.toInt());
-    _editingAnimationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 1000));
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _editingAnimationController.dispose();
   }
 
   @override
@@ -54,7 +45,8 @@ class _TimeBlockStackState extends State<TimeBlockStack>
                 onEdit: focusEditing,
                 state: state);
           }),
-          AnimatedEditingStripes(dimensions: widget.dimensions, state: state),
+          AnimatedEditingStripes(
+              dimensions: widget.dimensions, editing: state.isEditingActive()),
         ]),
       ),
     );
@@ -72,13 +64,11 @@ class _TimeBlockStackState extends State<TimeBlockStack>
     setState(() {
       this.state = state;
     });
-    final editing = state.editing == null;
-    if (editing) {
-      TodaiBackground.of(context).light();
-    } else {
+    if (state.isEditingActive()) {
       TodaiBackground.of(context).dark();
+    } else {
+      TodaiBackground.of(context).light();
     }
-    _editingAnimationController.animateTo(editing ? 0 : 1);
   }
 
   List<Widget> visualGuide() {

@@ -4,14 +4,13 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:todai/dimensions.dart';
 import 'package:todai/time_blocks/box.dart';
-import 'package:todai/time_blocks/controller.dart';
 
 class AnimatedEditingStripes extends StatefulWidget {
   final TodaiDimensions dimensions;
-  final TimeBlockState state;
+  final bool editing;
 
   const AnimatedEditingStripes(
-      {super.key, required this.dimensions, required this.state});
+      {super.key, required this.dimensions, required this.editing});
 
   @override
   State<AnimatedEditingStripes> createState() => _AnimatedEditingStripesState();
@@ -69,11 +68,11 @@ class _AnimatedEditingStripesState extends State<AnimatedEditingStripes>
   @override
   void didUpdateWidget(covariant AnimatedEditingStripes oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.state != oldWidget.state) {
-      if (widget.state.editing == null) {
-        _controller.reset();
-      } else {
+    if (widget.editing != oldWidget.editing) {
+      if (widget.editing) {
         _controller.animateTo(1);
+      } else {
+        _controller.reset();
       }
     }
   }
