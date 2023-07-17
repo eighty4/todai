@@ -1,5 +1,12 @@
 import 'dart:math';
 
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:todai/time_blocks/count.dart';
+
+typedef TimeBlockCallback = void Function(int);
+
+typedef TimeBlockEditCallback = void Function(int, String);
+
 class TimeBlock {
   final int index;
   final String text;
@@ -7,6 +14,33 @@ class TimeBlock {
 
   TimeBlock(
       {required this.index, required this.text, this.placeholder = false});
+}
+
+class TimeBlockData {
+  static Future<List<TimeBlock>> getTodos(TimeBlockCount blockCount) async {
+    final prefs = await SharedPreferences.getInstance();
+    final todos = prefs.getStringList('todos') ?? List.empty();
+    final placeholdersNeeded = blockCount.toInt() -
+        todos.length +
+        todos.where((todo) => todo == '').length;
+    final List<String> placeholders = getRandomTimeBlocks(placeholdersNeeded);
+    final result = List.generate(blockCount.toInt(), (i) {
+      String todo = i >= todos.length ? '' : todos[i];
+      bool placeholder = false;
+      if (todo == '') {
+        todo = placeholders.removeLast();
+        placeholder = true;
+      }
+      return TimeBlock(index: i, text: todo, placeholder: placeholder);
+    });
+    return result;
+  }
+
+  static Future setTodos(List<TimeBlock> todos) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('todos',
+        todos.map((todo) => todo.placeholder ? '' : todo.text).toList());
+  }
 }
 
 class TimeBlockState {
@@ -55,7 +89,7 @@ const randomLabels = <String>[
   'Practice guitar',
 ];
 
-List<TimeBlock> getRandomTimeBlocks(int count) {
+List<String> getRandomTimeBlocks(int count) {
   final random = Random();
   List<int> todos = [];
   do {
@@ -64,9 +98,5 @@ List<TimeBlock> getRandomTimeBlocks(int count) {
       todos.add(i);
     }
   } while (todos.length < count);
-  int id = 0;
-  return todos
-      .map((i) =>
-          TimeBlock(index: id++, text: randomLabels[i], placeholder: true))
-      .toList();
+  return todos.map((i) => randomLabels[i]).toList();
 }

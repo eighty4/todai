@@ -5,7 +5,7 @@ import 'package:todai/dimensions.dart';
 import 'package:todai/splash_screen/intro.dart';
 import 'package:todai/state.dart';
 import 'package:todai/time_blocks/count.dart';
-import 'package:todai/time_blocks/stack.dart';
+import 'package:todai/time_blocks/ui.dart';
 
 void main() {
   runApp(const TodaiApp());
@@ -62,7 +62,8 @@ class _TodaiScreenState extends State<TodaiScreen> {
     } else {
       return Padding(
         padding: dimensions.devicePadding,
-        child: TimeBlockStack(blockCount: blockCount, dimensions: dimensions),
+        child: TimeBlockUserInterface(
+            blockCount: blockCount, dimensions: dimensions),
       );
     }
   }

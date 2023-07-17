@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:todai/dimensions.dart';
 import 'package:todai/time_blocks/data.dart';
-
-typedef TimeBlockCallback = void Function(int);
+import 'package:todai/time_blocks/input.dart';
 
 class TimeBlockBox extends StatefulWidget {
   static const double marginHeight = 20;
@@ -12,22 +11,22 @@ class TimeBlockBox extends StatefulWidget {
       color: Color.fromARGB(204, 255, 255, 255),
       fontStyle: FontStyle.italic);
   static const TextStyle textStyle =
-      TextStyle(fontSize: 24, color: Color.fromARGB(255, 255, 255, 255));
-  static const TextStyle invertTextStyle =
-      TextStyle(fontSize: 24, color: Color.fromARGB(255, 0, 0, 0));
+      TextStyle(fontSize: 26, color: Color.fromARGB(255, 255, 255, 255));
 
   final TodaiDimensions dimensions;
   final TimeBlock timeBlock;
-  final VoidCallback onBlur;
-  final TimeBlockCallback onEdit;
+  final VoidCallback onEditBlur;
+  final TimeBlockEditCallback onEditChange;
+  final TimeBlockCallback onEditFocus;
   final TimeBlockState state;
 
   const TimeBlockBox(
       {Key? key,
       required this.dimensions,
       required this.timeBlock,
-      required this.onBlur,
-      required this.onEdit,
+      required this.onEditBlur,
+      required this.onEditChange,
+      required this.onEditFocus,
       required this.state})
       : super(key: key);
 
@@ -156,19 +155,10 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
       );
     } else {
       box = Center(
-        child: TextField(
-          autofocus: true,
-          textAlign: TextAlign.center,
-          decoration: const InputDecoration(border: InputBorder.none),
-          style: TimeBlockBox.invertTextStyle,
-          onEditingComplete: () {
-            FocusScope.of(context).unfocus();
-          },
-          onSubmitted: onSubmit,
-          onTapOutside: (PointerDownEvent e) {
-            FocusScope.of(context).unfocus();
-          },
-        ),
+        child: TimeBlockInput(
+            index: widget.timeBlock.index,
+            onBlur: widget.onEditBlur,
+            onEdit: widget.onEditChange),
       );
     }
     final VoidCallback? onTap =
@@ -183,12 +173,8 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
     );
   }
 
-  void onSubmit(String s) {
-    widget.onBlur();
-  }
-
   void onEdit() {
-    widget.onEdit(widget.timeBlock.index);
+    widget.onEditFocus(widget.timeBlock.index);
   }
 
   Widget _buildAnimation(BuildContext context, Widget? child) {

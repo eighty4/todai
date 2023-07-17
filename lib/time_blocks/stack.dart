@@ -9,9 +9,15 @@ import 'package:todai/time_blocks/stripe.dart';
 class TimeBlockStack extends StatefulWidget {
   final TimeBlockCount blockCount;
   final TodaiDimensions dimensions;
+  final TimeBlockEditCallback onEdit;
+  final List<TimeBlock> todos;
 
   const TimeBlockStack(
-      {Key? key, required this.blockCount, required this.dimensions})
+      {Key? key,
+      required this.blockCount,
+      required this.dimensions,
+      required this.onEdit,
+      required this.todos})
       : super(key: key);
 
   @override
@@ -20,14 +26,7 @@ class TimeBlockStack extends StatefulWidget {
 
 class _TimeBlockStackState extends State<TimeBlockStack>
     with SingleTickerProviderStateMixin {
-  late final List<TimeBlock> data;
   TimeBlockState state = TimeBlockState.reset;
-
-  @override
-  void initState() {
-    super.initState();
-    data = getRandomTimeBlocks(widget.blockCount.toInt());
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +39,10 @@ class _TimeBlockStackState extends State<TimeBlockStack>
           ...List.generate(widget.blockCount.toInt(), (index) {
             return TimeBlockBox(
                 dimensions: widget.dimensions,
-                timeBlock: data[index],
-                onBlur: blurEditing,
-                onEdit: focusEditing,
+                timeBlock: widget.todos[index],
+                onEditBlur: blurEditing,
+                onEditChange: widget.onEdit,
+                onEditFocus: focusEditing,
                 state: state);
           }),
           AnimatedEditingStripes(

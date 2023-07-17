@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todai/main.dart';
 import 'package:todai/splash_screen/intro.dart';
-import 'package:todai/time_blocks/stack.dart';
+import 'package:todai/time_blocks/ui.dart';
 
 void main() {
   testWidgets('Shows intro', (WidgetTester tester) async {
@@ -43,6 +43,6 @@ void main() {
     });
     await tester.pumpWidget(const TodaiApp());
     await tester.pump(const Duration(milliseconds: 100));
-    expect(find.byType(TimeBlockStack), findsOneWidget);
+    expect(find.byType(TimeBlockUserInterface), findsOneWidget);
   });
 }
