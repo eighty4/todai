@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:todai/background.dart';
 import 'package:todai/dimensions.dart';
@@ -22,34 +20,22 @@ class TimeBlockStack extends StatefulWidget {
 
 class _TimeBlockStackState extends State<TimeBlockStack>
     with SingleTickerProviderStateMixin {
-  late final TheTimeBlockController _controller;
   late final AnimationController _editingAnimationController;
-  late final StreamSubscription<TimeBlockEvent> _subscription;
+  late final List<TimeBlock> data;
+  TimeBlockState state = TimeBlockState.reset;
 
   @override
   void initState() {
     super.initState();
-    _controller = TheTimeBlockController(widget.blockCount);
+    data = getRandomTimeBlocks(widget.blockCount.toInt());
     _editingAnimationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 1000));
-    _subscription = _controller.stream.listen(onEvent);
-  }
-
-  void onEvent(event) {
-    final editing = event.editing == null;
-    if (event.editing == null) {
-      TodaiBackground.of(context).light();
-    } else {
-      TodaiBackground.of(context).dark();
-    }
-    _editingAnimationController.animateTo(editing ? 0 : 1);
   }
 
   @override
   void dispose() {
     super.dispose();
     _editingAnimationController.dispose();
-    _subscription.cancel().then((v) => _controller.close());
   }
 
   @override
@@ -63,24 +49,36 @@ class _TimeBlockStackState extends State<TimeBlockStack>
           ...List.generate(widget.blockCount.toInt(), (index) {
             return TimeBlockBox(
                 dimensions: widget.dimensions,
-                timeBlock: _controller.timeBlock(index),
+                timeBlock: data[index],
                 onBlur: blurEditing,
                 onEdit: focusEditing,
-                stream: _controller.stream);
+                state: state);
           }),
-          AnimatedEditingStripes(
-              dimensions: widget.dimensions, stream: _controller.stream),
+          AnimatedEditingStripes(dimensions: widget.dimensions, state: state),
         ]),
       ),
     );
   }
 
   void focusEditing(int index) {
-    _controller.focusEditing(index);
+    updateState(TimeBlockState.editing(index));
   }
 
   void blurEditing() {
-    _controller.blurEditing();
+    updateState(TimeBlockState.reset);
+  }
+
+  void updateState(TimeBlockState state) {
+    setState(() {
+      this.state = state;
+    });
+    final editing = state.editing == null;
+    if (editing) {
+      TodaiBackground.of(context).light();
+    } else {
+      TodaiBackground.of(context).dark();
+    }
+    _editingAnimationController.animateTo(editing ? 0 : 1);
   }
 
   List<Widget> visualGuide() {

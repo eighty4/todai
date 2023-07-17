@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:collection';
 import 'dart:math';
 
@@ -9,10 +8,10 @@ import 'package:todai/time_blocks/controller.dart';
 
 class AnimatedEditingStripes extends StatefulWidget {
   final TodaiDimensions dimensions;
-  final Stream<TimeBlockEvent> stream;
+  final TimeBlockState state;
 
   const AnimatedEditingStripes(
-      {super.key, required this.dimensions, required this.stream});
+      {super.key, required this.dimensions, required this.state});
 
   @override
   State<AnimatedEditingStripes> createState() => _AnimatedEditingStripesState();
@@ -21,7 +20,6 @@ class AnimatedEditingStripes extends StatefulWidget {
 class _AnimatedEditingStripesState extends State<AnimatedEditingStripes>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
-  late final StreamSubscription<TimeBlockEvent> _subscription;
   final Map<double, Animation<double>> _stripes = HashMap();
 
   @override
@@ -66,19 +64,18 @@ class _AnimatedEditingStripesState extends State<AnimatedEditingStripes>
       );
       _stripes[top] = animation;
     }
-    _subscription = widget.stream.listen((event) {
-      if (event.editing == null) {
+  }
+
+  @override
+  void didUpdateWidget(covariant AnimatedEditingStripes oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.state != oldWidget.state) {
+      if (widget.state.editing == null) {
         _controller.reset();
       } else {
         _controller.animateTo(1);
       }
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _subscription.cancel().then((value) => _controller.dispose());
+    }
   }
 
   @override

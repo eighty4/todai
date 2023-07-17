@@ -1,7 +1,4 @@
-import 'dart:async';
 import 'dart:math';
-
-import 'package:todai/time_blocks/count.dart';
 
 class TimeBlock {
   final int index;
@@ -12,40 +9,15 @@ class TimeBlock {
       {required this.index, required this.text, this.placeholder = false});
 }
 
-class TimeBlockEvent {
-  static const initialState = TimeBlockEvent(display: true);
+class TimeBlockState {
+  static const reset = TimeBlockState(display: true);
 
-  const TimeBlockEvent({this.editing, required this.display});
+  const TimeBlockState({this.editing, required this.display});
+
+  const TimeBlockState.editing(this.editing) : display = true;
 
   final int? editing;
   final bool display;
-}
-
-class TheTimeBlockController {
-  final StreamController<TimeBlockEvent> _streamController =
-      StreamController.broadcast();
-  final List<TimeBlock> _todos;
-
-  TheTimeBlockController(TimeBlockCount blockCount)
-      : _todos = getRandomTimeBlocks(blockCount.toInt());
-
-  Stream<TimeBlockEvent> get stream => _streamController.stream;
-
-  void focusEditing(int index) {
-    _streamController.add(TimeBlockEvent(display: true, editing: index));
-  }
-
-  TimeBlock timeBlock(int index) {
-    return _todos[index];
-  }
-
-  void blurEditing() {
-    _streamController.add(TimeBlockEvent.initialState);
-  }
-
-  Future close() {
-    return _streamController.close();
-  }
 }
 
 const randomLabels = <String>[

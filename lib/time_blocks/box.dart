@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:todai/dimensions.dart';
 import 'package:todai/time_blocks/controller.dart';
@@ -22,7 +20,7 @@ class TimeBlockBox extends StatefulWidget {
   final TimeBlock timeBlock;
   final VoidCallback onBlur;
   final TimeBlockCallback onEdit;
-  final Stream<TimeBlockEvent> stream;
+  final TimeBlockState state;
 
   const TimeBlockBox(
       {Key? key,
@@ -30,7 +28,7 @@ class TimeBlockBox extends StatefulWidget {
       required this.timeBlock,
       required this.onBlur,
       required this.onEdit,
-      required this.stream})
+      required this.state})
       : super(key: key);
 
   @override
@@ -41,9 +39,8 @@ enum TimeBlockBoxDisplayMode { display, hidden, editFocus, editBlur }
 
 class _TimeBlockBoxState extends State<TimeBlockBox>
     with TickerProviderStateMixin {
-  late AnimationController _editingC;
-  late AnimationController _displayC;
-  late StreamSubscription<TimeBlockEvent> _subscription;
+  late final AnimationController _editingC;
+  late final AnimationController _displayC;
   TimeBlockBoxDisplayMode mode = TimeBlockBoxDisplayMode.display;
 
   late Animation<Color?> _color;
@@ -57,9 +54,9 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
         vsync: this, duration: const Duration(milliseconds: 500));
     _displayC = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
-    _subscription = widget.stream.listen(_handleEvent);
-    _initHeightAnimation(TimeBlockEvent.initialState);
-    _initTopPosAnimation(TimeBlockEvent.initialState);
+    _handleTimeBlockState();
+    _initHeightAnimation();
+    _initTopPosAnimation();
     _color = ColorTween(begin: Colors.black, end: Colors.white).animate(
       CurvedAnimation(
         parent: _editingC,
@@ -68,16 +65,24 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
     );
   }
 
-  _handleEvent(TimeBlockEvent event) {
-    if (event.editing == widget.timeBlock.index) {
+  @override
+  void didUpdateWidget(covariant TimeBlockBox oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.state != oldWidget.state) {
+      _handleTimeBlockState();
+    }
+  }
+
+  _handleTimeBlockState() {
+    if (widget.state.editing == widget.timeBlock.index) {
       setState(() => mode = TimeBlockBoxDisplayMode.editFocus);
-      _initTopPosAnimation(event);
-      _initHeightAnimation(event);
+      _initTopPosAnimation();
+      _initHeightAnimation();
       _editingC.animateTo(1);
-    } else if (event.editing != null) {
+    } else if (widget.state.editing != null) {
       setState(() => mode = TimeBlockBoxDisplayMode.editBlur);
-      _initTopPosAnimation(event);
-      _initHeightAnimation(event);
+      _initTopPosAnimation();
+      _initHeightAnimation();
       _editingC.animateTo(1);
     } else {
       setState(() => mode = TimeBlockBoxDisplayMode.display);
@@ -85,14 +90,14 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
     }
   }
 
-  _initTopPosAnimation(TimeBlockEvent event) {
+  _initTopPosAnimation() {
     final double openTopPos = widget.dimensions.spaceAboveBlocks +
         ((widget.dimensions.blockHeight + TimeBlockBox.marginHeight) *
             widget.timeBlock.index);
     late final double editTopPos;
-    if (event.editing == null) {
+    if (widget.state.editing == null) {
       editTopPos = 0;
-    } else if (widget.timeBlock.index <= event.editing!) {
+    } else if (widget.timeBlock.index <= widget.state.editing!) {
       editTopPos = widget.dimensions.spaceAboveBlocksEditing +
           ((TimeBlockBox.minimizedHeight + TimeBlockBox.marginHeight) *
               widget.timeBlock.index);
@@ -112,7 +117,7 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
     );
   }
 
-  _initHeightAnimation(TimeBlockEvent event) {
+  _initHeightAnimation() {
     final double intervalStart = .1 * widget.timeBlock.index;
     final double intervalEnd = intervalStart + .6;
     final editHeight = mode == TimeBlockBoxDisplayMode.editFocus
@@ -133,7 +138,6 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
     super.dispose();
     _editingC.dispose();
     _displayC.dispose();
-    _subscription.cancel();
   }
 
   @override
