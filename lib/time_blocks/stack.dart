@@ -9,6 +9,7 @@ import 'package:todai/time_blocks/stripe.dart';
 class TimeBlockStack extends StatefulWidget {
   final TimeBlockCount blockCount;
   final TodaiDimensions dimensions;
+  final TimeBlockCallback onComplete;
   final TimeBlockEditCallback onEdit;
   final List<TimeBlock> todos;
 
@@ -16,6 +17,7 @@ class TimeBlockStack extends StatefulWidget {
       {Key? key,
       required this.blockCount,
       required this.dimensions,
+      required this.onComplete,
       required this.onEdit,
       required this.todos})
       : super(key: key);
@@ -26,45 +28,43 @@ class TimeBlockStack extends StatefulWidget {
 
 class _TimeBlockStackState extends State<TimeBlockStack>
     with SingleTickerProviderStateMixin {
-  TimeBlockState state = TimeBlockState.reset;
+  TimeBlockUiState uiState = TimeBlockUiState.reset;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: blurEditing,
-      child: Container(
-        color: Colors.transparent,
-        child: Stack(children: [
-          // ...visualGuide(),
-          ...List.generate(widget.blockCount.toInt(), (index) {
-            return TimeBlockBox(
-                dimensions: widget.dimensions,
-                timeBlock: widget.todos[index],
-                onEditBlur: blurEditing,
-                onEditChange: widget.onEdit,
-                onEditFocus: focusEditing,
-                state: state);
-          }),
-          AnimatedEditingStripes(
-              dimensions: widget.dimensions, editing: state.isEditingActive()),
-        ]),
-      ),
+    return Container(
+      color: Colors.transparent,
+      child: Stack(children: [
+        // ...visualGuide(),
+        ...List.generate(widget.blockCount.toInt(), (index) {
+          return TimeBlockBox(
+              dimensions: widget.dimensions,
+              timeBlock: widget.todos[index],
+              onEditBlur: _blurEditing,
+              onEditChange: widget.onEdit,
+              onEditFocus: _focusEditing,
+              onSwipedComplete: widget.onComplete,
+              uiState: uiState);
+        }),
+        AnimatedEditingStripes(
+            dimensions: widget.dimensions, editing: uiState.isEditingActive()),
+      ]),
     );
   }
 
-  void focusEditing(int index) {
-    updateState(TimeBlockState.editing(index));
+  void _focusEditing(int index) {
+    _updateUiStatus(TimeBlockUiState.editing(index));
   }
 
-  void blurEditing() {
-    updateState(TimeBlockState.reset);
+  void _blurEditing() {
+    _updateUiStatus(TimeBlockUiState.reset);
   }
 
-  void updateState(TimeBlockState state) {
+  void _updateUiStatus(TimeBlockUiState uiState) {
     setState(() {
-      this.state = state;
+      this.uiState = uiState;
     });
-    if (state.isEditingActive()) {
+    if (uiState.isEditingActive()) {
       TodaiBackground.of(context).dark();
     } else {
       TodaiBackground.of(context).light();

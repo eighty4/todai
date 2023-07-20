@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todai/time_blocks/count.dart';
 
@@ -7,48 +8,94 @@ typedef TimeBlockCallback = void Function(int);
 
 typedef TimeBlockEditCallback = void Function(int, String);
 
+enum TimeBlockStatus { completed, placeholder, todo }
+
 class TimeBlock {
   final int index;
   final String text;
-  final bool placeholder;
+  final TimeBlockStatus status;
 
   TimeBlock(
-      {required this.index, required this.text, this.placeholder = false});
+      {required this.index,
+      required this.text,
+      this.status = TimeBlockStatus.todo});
+
+  TimeBlock.completed(TimeBlock completed)
+      : index = completed.index,
+        text = completed.text,
+        status = TimeBlockStatus.completed;
+
+  TimeBlock.placeholder({required this.index, required this.text})
+      : status = TimeBlockStatus.placeholder;
+
+  bool get completed => status == TimeBlockStatus.completed;
+
+  bool get placeholder => status == TimeBlockStatus.placeholder;
+
+  bool get isAYetToDoTodo => status == TimeBlockStatus.todo;
+
+  @override
+  String toString() {
+    return 'TimeBlock{index: $index, text: $text, status: $status}';
+  }
 }
 
 class TimeBlockData {
   static Future<List<TimeBlock>> getTodos(TimeBlockCount blockCount) async {
     final prefs = await SharedPreferences.getInstance();
-    final todos = prefs.getStringList('todos') ?? List.empty();
+    final todos = prefs.getStringList('today') ?? List.empty();
     final placeholdersNeeded = blockCount.toInt() -
         todos.length +
         todos.where((todo) => todo == '').length;
     final List<String> placeholders = getRandomTimeBlocks(placeholdersNeeded);
     final result = List.generate(blockCount.toInt(), (i) {
       String todo = i >= todos.length ? '' : todos[i];
-      bool placeholder = false;
+      TimeBlockStatus status = TimeBlockStatus.todo;
       if (todo == '') {
         todo = placeholders.removeLast();
-        placeholder = true;
+        status = TimeBlockStatus.placeholder;
       }
-      return TimeBlock(index: i, text: todo, placeholder: placeholder);
+      return TimeBlock(index: i, text: todo, status: status);
     });
     return result;
   }
 
   static Future setTodos(List<TimeBlock> todos) async {
+    await _setTodos(await SharedPreferences.getInstance(), todos);
+  }
+
+  static Future _setTodos(
+      SharedPreferences prefs, List<TimeBlock> todos) async {
+    await prefs.setStringList(
+        'today',
+        todos.map((todo) {
+          return todo.completed || todo.placeholder ? '' : todo.text;
+        }).toList());
+  }
+
+  static Future complete(List<TimeBlock> todos) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('todos',
-        todos.map((todo) => todo.placeholder ? '' : todo.text).toList());
+    final settingTodayRemainingTodos = _setTodos(prefs, todos);
+    final completed =
+        todos.where((element) => element.completed).map((e) => e.text).toList();
+    if (completed.isNotEmpty) {
+      final todayKey = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      final saved = prefs.getStringList(todayKey);
+      if (saved != null) {
+        completed.addAll(saved);
+        await prefs.setStringList(todayKey, completed);
+      }
+    }
+    await settingTodayRemainingTodos;
   }
 }
 
-class TimeBlockState {
-  static const reset = TimeBlockState(display: true);
+class TimeBlockUiState {
+  static const reset = TimeBlockUiState(display: true);
 
-  const TimeBlockState({this.editing, required this.display});
+  const TimeBlockUiState({this.editing, required this.display});
 
-  const TimeBlockState.editing(this.editing) : display = true;
+  const TimeBlockUiState.editing(this.editing) : display = true;
 
   final int? editing;
   final bool display;

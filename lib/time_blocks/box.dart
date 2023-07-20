@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:todai/dimensions.dart';
 import 'package:todai/time_blocks/data.dart';
 import 'package:todai/time_blocks/input.dart';
+import 'package:todai/time_blocks/swipe.dart';
 
 class TimeBlockBox extends StatefulWidget {
   static const double marginHeight = 20;
@@ -14,11 +15,12 @@ class TimeBlockBox extends StatefulWidget {
       TextStyle(fontSize: 26, color: Color.fromARGB(255, 255, 255, 255));
 
   final TodaiDimensions dimensions;
-  final TimeBlock timeBlock;
   final VoidCallback onEditBlur;
   final TimeBlockEditCallback onEditChange;
   final TimeBlockCallback onEditFocus;
-  final TimeBlockState state;
+  final TimeBlockCallback onSwipedComplete;
+  final TimeBlock timeBlock;
+  final TimeBlockUiState uiState;
 
   const TimeBlockBox(
       {Key? key,
@@ -27,20 +29,18 @@ class TimeBlockBox extends StatefulWidget {
       required this.onEditBlur,
       required this.onEditChange,
       required this.onEditFocus,
-      required this.state})
+      required this.onSwipedComplete,
+      required this.uiState})
       : super(key: key);
 
   @override
   State<TimeBlockBox> createState() => _TimeBlockBoxState();
 }
 
-enum TimeBlockBoxDisplayMode { display, hidden, editFocus, editBlur }
-
 class _TimeBlockBoxState extends State<TimeBlockBox>
     with TickerProviderStateMixin {
   late final AnimationController _editingC;
-  late final AnimationController _displayC;
-  TimeBlockBoxDisplayMode mode = TimeBlockBoxDisplayMode.display;
+  CompletionSwiping? swiping;
 
   late Animation<Color?> _color;
   late Animation<double> _height;
@@ -50,8 +50,6 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
   void initState() {
     super.initState();
     _editingC = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 500));
-    _displayC = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
     _handleTimeBlockState();
     _initHeightAnimation();
@@ -67,36 +65,45 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
   @override
   void didUpdateWidget(covariant TimeBlockBox oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.state != oldWidget.state) {
+    if (widget.uiState != oldWidget.uiState) {
       _handleTimeBlockState();
     }
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _editingC.dispose();
+  }
+
   _handleTimeBlockState() {
-    if (widget.state.editing == widget.timeBlock.index) {
-      setState(() => mode = TimeBlockBoxDisplayMode.editFocus);
+    if (hasEditFocus()) {
       _initTopPosAnimation();
       _initHeightAnimation();
       _editingC.animateTo(1);
-    } else if (widget.state.editing != null) {
-      setState(() => mode = TimeBlockBoxDisplayMode.editBlur);
+    } else if (inEditBlur()) {
       _initTopPosAnimation();
       _initHeightAnimation();
       _editingC.animateTo(1);
     } else {
-      setState(() => mode = TimeBlockBoxDisplayMode.display);
       _editingC.animateTo(0);
     }
   }
+
+  bool inDisplayMode() => widget.uiState.editing == null;
+
+  bool inEditBlur() => widget.uiState.editing != null && !hasEditFocus();
+
+  bool hasEditFocus() => widget.uiState.editing == widget.timeBlock.index;
 
   _initTopPosAnimation() {
     final double openTopPos = widget.dimensions.spaceAboveBlocks +
         ((widget.dimensions.blockHeight + TimeBlockBox.marginHeight) *
             widget.timeBlock.index);
     late final double editTopPos;
-    if (widget.state.editing == null) {
+    if (widget.uiState.editing == null) {
       editTopPos = 0;
-    } else if (widget.timeBlock.index <= widget.state.editing!) {
+    } else if (widget.timeBlock.index <= widget.uiState.editing!) {
       editTopPos = widget.dimensions.spaceAboveBlocksEditing +
           ((TimeBlockBox.minimizedHeight + TimeBlockBox.marginHeight) *
               widget.timeBlock.index);
@@ -119,7 +126,7 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
   _initHeightAnimation() {
     final double intervalStart = .1 * widget.timeBlock.index;
     final double intervalEnd = intervalStart + .6;
-    final editHeight = mode == TimeBlockBoxDisplayMode.editFocus
+    final editHeight = hasEditFocus()
         ? widget.dimensions.blockHeight
         : TimeBlockBox.minimizedHeight;
     _height =
@@ -133,62 +140,90 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
   }
 
   @override
-  void dispose() {
-    super.dispose();
-    _editingC.dispose();
-    _displayC.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    late final Widget box;
-    if (mode != TimeBlockBoxDisplayMode.editFocus) {
-      box = Container(
-        color: Colors.transparent,
-        child: Center(
-            child: Text(
-          widget.timeBlock.text,
-          style: widget.timeBlock.placeholder
-              ? TimeBlockBox.placeholderTextStyle
-              : TimeBlockBox.textStyle,
-        )),
-      );
-    } else {
-      box = Center(
-        child: TimeBlockInput(
-            index: widget.timeBlock.index,
-            onBlur: widget.onEditBlur,
-            onEdit: widget.onEditChange),
-      );
-    }
-    final VoidCallback? onTap =
-        mode == TimeBlockBoxDisplayMode.display ? onEdit : null;
     return Stack(
       children: [
         AnimatedBuilder(
             animation: _editingC,
             builder: _buildAnimation,
-            child: GestureDetector(onTap: onTap, child: box))
+            child: _buildWidget()),
       ],
     );
   }
 
-  void onEdit() {
-    widget.onEditFocus(widget.timeBlock.index);
-  }
-
   Widget _buildAnimation(BuildContext context, Widget? child) {
     return Positioned(
-      top: _top.value,
-      child: Container(
-        color: _color.value,
-        height: _height.value,
-        width: MediaQuery.of(context).size.width,
-        child: Opacity(
-          opacity: 1,
-          child: child,
-        ),
-      ),
+        top: _top.value,
+        child: Container(
+          color: _color.value,
+          height: _height.value,
+          width: MediaQuery.of(context).size.width,
+          child: Opacity(
+            opacity: 1,
+            child: child,
+          ),
+        ));
+  }
+
+  Widget _buildWidget() {
+    if (hasEditFocus()) {
+      return Center(
+        child: TimeBlockInput(
+            timeBlock: widget.timeBlock,
+            onBlur: widget.onEditBlur,
+            onEdit: widget.onEditChange),
+      );
+    }
+    Widget box = Container(
+      color: Colors.transparent,
+      child: Center(
+          child: Text(
+        widget.timeBlock.text,
+        style: widget.timeBlock.placeholder
+            ? TimeBlockBox.placeholderTextStyle
+            : TimeBlockBox.textStyle,
+      )),
     );
+    if (inDisplayMode()) {
+      if (widget.timeBlock.placeholder) {
+        box = GestureDetector(onTap: onEdit, child: box);
+      } else {
+        box = GestureDetector(
+          onTap: onEdit,
+          onHorizontalDragStart: onSwipeStart,
+          onHorizontalDragUpdate: onSwipeUpdate,
+          onHorizontalDragEnd: onSwipeEnd,
+          child: CustomPaint(
+              foregroundPainter: CompletionLinePainter(swiping: swiping),
+              size: Size(widget.dimensions.screenSize.width,
+                  widget.dimensions.blockHeight),
+              child: box),
+        );
+      }
+    }
+    return box;
+  }
+
+  void onEdit() => widget.onEditFocus(widget.timeBlock.index);
+
+  void onSwipeStart(DragStartDetails details) {
+    assert(swiping == null || swiping!.done);
+    setState(() => swiping = CompletionSwiping.start(details.localPosition.dx));
+  }
+
+  void onSwipeUpdate(DragUpdateDetails details) {
+    setState(() => swiping = swiping?.ongoing(details.delta.dx));
+  }
+
+  void onSwipeEnd(DragEndDetails details) {
+    assert(swiping != null);
+    final completed =
+        swiping!.distance > widget.dimensions.screenSize.width * .3;
+    final swiped =
+        completed ? swiping!.end(details.primaryVelocity ?? 0) : null;
+    setState(() => swiping = swiped);
+    if (completed) {
+      widget.onSwipedComplete(widget.timeBlock.index);
+    }
   }
 }

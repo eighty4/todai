@@ -37,9 +37,17 @@ class _TimeBlockUserInterfaceState extends State<TimeBlockUserInterface> {
       return TimeBlockStack(
           blockCount: widget.blockCount,
           dimensions: widget.dimensions,
+          onComplete: onComplete,
           onEdit: onEdit,
           todos: todos!);
     }
+  }
+
+  void onComplete(int index) {
+    setState(() {
+      todos![index] = TimeBlock.completed(todos![index]);
+    });
+    TimeBlockData.setTodos(todos!).then((value) {});
   }
 
   void onEdit(int index, String text) {
