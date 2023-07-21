@@ -23,7 +23,9 @@ class TimeBlockInput extends StatefulWidget {
 
 class _TimeBlockInputState extends State<TimeBlockInput> {
   final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
   String? _prompt;
+  bool closeHandled = false;
 
   @override
   void initState() {
@@ -35,11 +37,17 @@ class _TimeBlockInputState extends State<TimeBlockInput> {
             baseOffset: 0, extentOffset: widget.timeBlock.text.length);
       }
     }
+    _focusNode.addListener(() {
+      if (!_focusNode.hasFocus) {
+        close();
+      }
+    });
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -75,28 +83,36 @@ class _TimeBlockInputState extends State<TimeBlockInput> {
   TextField buildTextField() {
     return TextField(
       controller: _controller,
+      focusNode: _focusNode,
       autofocus: true,
       textAlign: TextAlign.center,
       decoration: const InputDecoration(border: InputBorder.none),
       style: TimeBlockInput.invertTextStyle,
-      onEditingComplete: () {
-        if (validate()) {
-          close();
-        }
-      },
-      onSubmitted: (s) {
-        save();
-      },
-      onTapOutside: (PointerDownEvent e) {
-        if (validate()) {
-          close();
-          save();
-        }
-      },
+      onEditingComplete: close,
+      onTapOutside: (PointerDownEvent e) => close(),
     );
   }
 
   String get _value => _controller.value.text.trim();
+
+  void close() {
+    if (closeHandled) {
+      return;
+    }
+    if (!validate()) {
+      if (!_focusNode.hasFocus) {
+        _focusNode.requestFocus();
+      }
+      return;
+    }
+    closeHandled = true;
+    FocusScope.of(context).unfocus();
+    widget.onBlur();
+    final todo = _value;
+    if (widget.timeBlock.text != todo) {
+      widget.onEdit(widget.timeBlock.index, todo);
+    }
+  }
 
   bool validate() {
     if (_value.split(' ').length > 2) {
@@ -106,17 +122,5 @@ class _TimeBlockInputState extends State<TimeBlockInput> {
       setState(() => _prompt = null);
     }
     return true;
-  }
-
-  void close() {
-    FocusScope.of(context).unfocus();
-    widget.onBlur();
-  }
-
-  void save() {
-    final todo = _value;
-    if (widget.timeBlock.text != todo) {
-      widget.onEdit(widget.timeBlock.index, todo);
-    }
   }
 }
