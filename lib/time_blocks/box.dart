@@ -167,12 +167,11 @@ class _TimeBlockBoxState extends State<TimeBlockBox>
 
   Widget _buildWidget() {
     if (hasEditFocus()) {
-      return Center(
-        child: TimeBlockInput(
-            timeBlock: widget.timeBlock,
-            onBlur: widget.onEditBlur,
-            onEdit: widget.onEditChange),
-      );
+      return TimeBlockInput(
+          dimensions: widget.dimensions,
+          onBlur: widget.onEditBlur,
+          onEdit: widget.onEditChange,
+          timeBlock: widget.timeBlock);
     }
     Widget box = Container(
       color: Colors.transparent,
