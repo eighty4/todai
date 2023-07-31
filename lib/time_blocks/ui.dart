@@ -51,6 +51,9 @@ class _TimeBlockUserInterfaceState extends State<TimeBlockUserInterface> {
   }
 
   void onEdit(int index, String text) {
+    if (text == '' && todos![index].placeholder) {
+      return;
+    }
     setState(() {
       todos![index] = TimeBlock(index: index, text: text);
     });
