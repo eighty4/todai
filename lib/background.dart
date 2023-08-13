@@ -12,14 +12,14 @@ class TodaiBackground extends ChangeNotifier {
   }
 
   void dark() {
-    _update(BackgroundMode.dark);
+    update(BackgroundMode.dark);
   }
 
   void light() {
-    _update(BackgroundMode.light);
+    update(BackgroundMode.light);
   }
 
-  void _update(BackgroundMode mode) {
+  void update(BackgroundMode mode) {
     if (this.mode != mode) {
       this.mode = mode;
       notifyListeners();

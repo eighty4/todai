@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:todai/background.dart';
 import 'package:todai/dimensions.dart';
-import 'package:todai/splash_screen/checkerboard.dart';
+import 'package:todai/splash_screen/bars.dart';
+import 'package:todai/splash_screen/boxes.dart';
+import 'package:todai/splash_screen/fade.dart';
 import 'package:todai/splash_screen/robocaptcha.dart';
 
 class IntroSequence extends StatefulWidget {
+  final BoxesGrid boxesGrid;
   final TodaiDimensions dimensions;
   final VoidCallback onFinished;
 
-  const IntroSequence(
-      {super.key, required this.dimensions, required this.onFinished});
+  IntroSequence({super.key, required this.dimensions, required this.onFinished})
+      : boxesGrid = BoxesGrid.forDimensions(dimensions);
 
   @override
   State<IntroSequence> createState() => _IntroSequenceState();
@@ -25,21 +29,18 @@ class _IntroSequenceState extends State<IntroSequence> {
 
   @override
   Widget build(BuildContext context) {
-    switch (step) {
-      case SplashSequenceStep.one:
-        return AnimatedCheckerboard(
-            dimensions: widget.dimensions,
-            onFinished: () => setState(() => step = SplashSequenceStep.two),
-            pattern: CheckerboardPattern.lightToDark);
-      case SplashSequenceStep.two:
-        return RoboCaptcha(
-            dimensions: widget.dimensions,
-            onFinished: () => setState(() => step = SplashSequenceStep.three));
-      case SplashSequenceStep.three:
-        return AnimatedCheckerboard(
-            dimensions: widget.dimensions,
-            onFinished: () => widget.onFinished(),
-            pattern: CheckerboardPattern.darkToLight);
-    }
+    return switch (step) {
+      SplashSequenceStep.one => AnimatedBars(
+          boxesGrid: widget.boxesGrid,
+          dimensions: widget.dimensions,
+          onFinished: () => setState(() => step = SplashSequenceStep.two)),
+      SplashSequenceStep.two => RoboCaptcha(
+          boxesGrid: widget.boxesGrid,
+          dimensions: widget.dimensions,
+          onFinished: () => setState(() => step = SplashSequenceStep.three)),
+      SplashSequenceStep.three => BackgroundFade(
+          fadeToBackground: BackgroundMode.light,
+          onFinished: widget.onFinished),
+    };
   }
 }

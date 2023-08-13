@@ -12,11 +12,15 @@ const verified = [
 ];
 
 class RoboCaptcha extends StatefulWidget {
+  final BoxesGrid boxesGrid;
   final TodaiDimensions dimensions;
   final VoidCallback onFinished;
 
   const RoboCaptcha(
-      {super.key, required this.dimensions, required this.onFinished});
+      {super.key,
+      required this.boxesGrid,
+      required this.dimensions,
+      required this.onFinished});
 
   @override
   State<RoboCaptcha> createState() => _RoboCaptchaState();
@@ -24,10 +28,11 @@ class RoboCaptcha extends StatefulWidget {
 
 class _RoboCaptchaState extends State<RoboCaptcha> {
   static const duration = Duration(milliseconds: 500);
+  late Offset boxOffset = createBoxOffset();
   int counter = 0;
+  bool hideTopText = false;
   bool renderBox = false;
   bool renderButton = false;
-  bool hideTopText = false;
   bool showBottomText = false;
 
   @override
@@ -36,6 +41,18 @@ class _RoboCaptchaState extends State<RoboCaptcha> {
     Future.delayed(duration * 1.5, () {
       setState(() => renderBox = true);
     });
+  }
+
+  Offset createBoxOffset() {
+    final random = Random();
+    final top =
+        random.nextInt((widget.dimensions.screenSize.height * .2).floor()) +
+            widget.dimensions.screenSize.height * .7;
+    final dx = (random.nextDouble() *
+            (widget.dimensions.windowSize.width -
+                (widget.boxesGrid.boxSize.width * 3)) +
+        widget.boxesGrid.boxSize.width);
+    return Offset(dx, top);
   }
 
   @override
@@ -115,21 +132,31 @@ class _RoboCaptchaState extends State<RoboCaptcha> {
       Future.delayed(duration * 2, () => setState(() => showBottomText = true));
       Future.delayed(duration * 4, () => setState(() => renderButton = true));
     } else {
-      Future.delayed(duration, () => setState(() => renderBox = true));
+      Future.delayed(duration, () {
+        setBoxOffset(createBoxOffset());
+        setState(() => renderBox = true);
+      });
     }
   }
 
+  setBoxOffset(Offset maybeUpdate) {
+    final halfWidth = widget.dimensions.windowSize.width / 2;
+    final dxMax = widget.dimensions.windowSize.width -
+        (widget.boxesGrid.boxSize.width * 2);
+    double dx = maybeUpdate.dx;
+    double dy = maybeUpdate.dy;
+    if ((boxOffset.dx < halfWidth && maybeUpdate.dx < halfWidth) ||
+        (boxOffset.dx >= halfWidth && maybeUpdate.dx >= halfWidth)) {
+      dx = min(dxMax, widget.dimensions.windowSize.width - maybeUpdate.dx);
+    }
+    boxOffset = Offset(dx, dy);
+  }
+
   Widget buildBox() {
-    final top =
-        Random().nextInt((widget.dimensions.screenSize.height * .2).floor()) +
-            widget.dimensions.screenSize.height * .7;
-    final left =
-        Random().nextInt((widget.dimensions.screenSize.width * .7).floor()) +
-            (widget.dimensions.screenSize.width * .15);
     return WhackchaBox(
-        top: top,
-        left: left,
-        size: BoxesGrid.forDimensions(widget.dimensions).boxSize,
+        top: boxOffset.dy,
+        left: boxOffset.dx,
+        size: widget.boxesGrid.boxSize,
         onWhacked: onWhacked);
   }
 }

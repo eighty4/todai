@@ -9,42 +9,38 @@ import 'package:todai/splash_screen/boxes.dart';
 
 const durationMS = 3000;
 
-enum CheckerboardPattern {
-  lightToDark,
-  darkToLight,
-}
-
 class AnimatedCheckerboard extends StatefulWidget {
+  final BackgroundMode backgroundTransition;
+  final List<AnimatedCheckerBox> boxes;
+  final BoxesGrid boxesGrid;
   final TodaiDimensions dimensions;
   final VoidCallback onFinished;
-  final CheckerboardPattern pattern;
-  final List<AnimatedCheckerBox> boxes;
 
   AnimatedCheckerboard(
       {super.key,
+      required this.backgroundTransition,
+      required this.boxesGrid,
       required this.dimensions,
-      required this.onFinished,
-      required this.pattern})
-      : boxes = buildAnimatedBoxes(dimensions, pattern);
+      required this.onFinished})
+      : boxes = buildAnimatedBoxes(boxesGrid, dimensions, backgroundTransition);
 
   @override
   State<AnimatedCheckerboard> createState() => _AnimatedCheckerboardState();
 
-  static List<AnimatedCheckerBox> buildAnimatedBoxes(
-      TodaiDimensions dimensions, CheckerboardPattern pattern) {
+  static List<AnimatedCheckerBox> buildAnimatedBoxes(BoxesGrid boxesGrid,
+      TodaiDimensions dimensions, BackgroundMode backgroundTransition) {
     late final Color from;
     late final Color to;
-    if (pattern == CheckerboardPattern.lightToDark) {
-      from = Colors.white;
-      to = Colors.black;
-    } else {
+    if (backgroundTransition == BackgroundMode.light) {
       from = Colors.black;
       to = Colors.white;
+    } else {
+      from = Colors.white;
+      to = Colors.black;
     }
     const waveLength = .3;
     const firstWave = .2;
     const secondWave = .5;
-    final boxesGrid = BoxesGrid.forDimensions(dimensions);
     final List<AnimatedCheckerBox> boxes = [];
     for (int x = 0; x < boxesGrid.columns; x++) {
       for (int y = 0; y < boxesGrid.rows; y++) {
@@ -89,11 +85,7 @@ class _AnimatedCheckerboardState extends State<AnimatedCheckerboard> {
   }
 
   void changeBackground() {
-    if (widget.pattern == CheckerboardPattern.lightToDark) {
-      TodaiBackground.of(context).dark();
-    } else {
-      TodaiBackground.of(context).light();
-    }
+    TodaiBackground.of(context).update(widget.backgroundTransition);
   }
 
   void finish() {
